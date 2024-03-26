@@ -30,6 +30,13 @@ k = np.logspace(np.log10(kmin),np.log10(kmax+1),5000)
 M = k*Mpe
 w = np.interp(M, df_data['M'].values[::-1], df_data['w'].values[::-1], )
 
+# Creation 
+def Flory_2(x,k):
+    return x[0]*np.power(x[1],2)*np.multiply(k, np.power(1-x[1],k-1)) + x[2]*np.power(x[3],2)*np.multiply(k, np.power(1-x[3],k-1))
+
+def res(x,k):
+    return np.sum(np.power(w-Flory_2(x,k)))
+
 # Distributions de Flory
 a1 = 0.0002
 f1 = 0
@@ -40,14 +47,6 @@ f2 = 4000
 wk2 = f2*np.power(a2,2)*np.multiply(k,np.power(1-a2,k-1))
 
 wktot = wk1 + wk2
-
-# Creation 
-def Flory_2(x,k):
-    return x[0]*np.power(x[1],2)*np.multiply(k, np.power(1-x[1],k-1)) + x[2]*np.power(x[3],2)*np.multiply(k, np.power(1-x[3],k-1))
-
-def res(x,k):
-    return np.sum(np.power(w-Flory_2(x,k)))
-
 
 
 # Plot
