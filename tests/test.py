@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.optimize import minimize, curve_fit
 
 # fig, ax = plt.subplots()
 # ax.plot(k*Mw, wk1, label='Flory_1')
@@ -31,23 +32,28 @@ M = k*Mpe
 w = np.interp(M, df_data['M'].values[::-1], df_data['w'].values[::-1], )
 
 # Creation 
-def Flory_2(x,k):
-    return x[0]*np.power(x[1],2)*np.multiply(k, np.power(1-x[1],k-1)) + x[2]*np.power(x[3],2)*np.multiply(k, np.power(1-x[3],k-1))
+def Flory_2(k,f1,a1,f2,a2):
+    return f1*np.power(a1,2)*np.multiply(k, np.power(1-a1,k-1)) + f2*np.power(a2,2)*np.multiply(k, np.power(1-a2,k-1))
 
-def res(x,k):
-    return np.sum(np.power(w-Flory_2(x,k)))
+def obj_funct(x,k):
+    return np.sum(np.power(w-Flory_2(x,k),2))
+
+# result = minimize(obj_funct, [4000,0.0003,4000,0.0005], args=(k,))
+# print(result)
+p0 = [4000,0.0003,4000,0.0005]
+[f1,a1,f2,a2], res_cov = curve_fit(Flory_2, k, w, p0 = p0)
+print([f1,a1,f2,a2])
 
 # Distributions de Flory
-a1 = 0.0002
-f1 = 0
+# a1 = 0.0003
+# f1 = 4000
 wk1 = f1*np.power(a1,2)*np.multiply(k,np.power(1-a1,k-1))
 
-a2 = 0.0005
-f2 = 4000
+# a2 = 0.0005
+# f2 = 4000
 wk2 = f2*np.power(a2,2)*np.multiply(k,np.power(1-a2,k-1))
 
 wktot = wk1 + wk2
-
 
 # Plot
 fig, ax = plt.subplots()
