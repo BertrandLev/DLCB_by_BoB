@@ -35,11 +35,6 @@ w = np.interp(M, df_data['M'].values[::-1], df_data['w'].values[::-1], )
 def Flory_2(k,f1,a1,f2,a2):
     return f1*np.power(a1,2)*np.multiply(k, np.power(1-a1,k-1)) + f2*np.power(a2,2)*np.multiply(k, np.power(1-a2,k-1))
 
-def obj_funct(x,k):
-    return np.sum(np.power(w-Flory_2(x,k),2))
-
-# result = minimize(obj_funct, [4000,0.0003,4000,0.0005], args=(k,))
-# print(result)
 p0 = [4000,0.0003,4000,0.0005]
 [f1,a1,f2,a2], res_cov = curve_fit(Flory_2, k, w, p0 = p0)
 print([f1,a1,f2,a2])
