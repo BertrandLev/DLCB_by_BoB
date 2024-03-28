@@ -3,108 +3,70 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize, curve_fit
 
-# fig, ax = plt.subplots()
-# ax.plot(k*Mw, wk1, label='Flory_1')
-# ax.plot(k*Mw, wk2, label='Flory_2')
-# ax.plot(k*Mw, wk1 + wk2, 'k--', label='Sum')
-# ax.legend()
-# ax.set_xscale('log')
-# ax.grid()
-# plt.show(block = True)
-
 # Import du fichier
 file_path = 'tests\GPCIR TOTAL-23-0259.xls'
 df_file = pd.read_excel(file_path, sheet_name='Data')
 df_data = df_file[['LogM conventional ','Weight fraction / LogM ']]
 df_data = df_data.rename(columns={'LogM conventional ':'LogM','Weight fraction / LogM ':'w'})
 df_data = df_data.dropna()
-df_data = df_data[df_data['LogM'] > 2.69897]
+df_data = df_data[df_data['LogM'] > 2.2]
 df_data['M'] = np.power(10,df_data['LogM'].values)
 
-# Range de masse molaire
-Mpe = 28.0
-kmin = int(np.divide(500,Mpe))
-kmax = int(np.divide(np.max(df_data['M'].values),Mpe))
-k = np.logspace(np.log10(kmin),np.log10(kmax+1),5000)
+# Interpolation des valeurs sur 1000 points
+logM = np.linspace(np.min(df_data['LogM']),np.max(df_data['LogM']),1000)
+w = np.interp(logM, df_data['LogM'].values[::-1], df_data['w'].values[::-1], )
 
-# Interpolation
-M = k*Mpe
-w = np.interp(M, df_data['M'].values[::-1], df_data['w'].values[::-1], )
+# Creation des fonctions Flory
+def Flory(logM,tau):
+    M = np.power(10,logM)
+    return 2.3026*tau**2*np.multiply(np.power(M,2),np.exp(-M*tau))
 
-# Creation 
-def Flory(k,f,a):
-    return f*a**2*np.multiply(np.power(k,2),np.exp(-k*a))
+def Flory_multi(logM, *args):
+    if len(args) < 1:
+        raise ValueError("Number of parameter must be at least 1")    
+    elif len(args)%2 == 0:
+        raise ValueError("number of parameter should not be a factor of 2")
+    nb_Flory = len(args) // 2 + 1
+    if nb_Flory == 1:
+        return Flory(logM,args[0])
+    else :
+        Flory_sum = (1-np.sum([args[k] for k in range(0,nb_Flory-1)]))*Flory(logM,args[-1])
+        for i in range(0,nb_Flory-1):
+            Flory_sum += args[i]*Flory(logM,args[nb_Flory-1+i])
+        return Flory_sum
 
-def Flory3(k,f1,f2,f3,a1,a2,a3):
-    return f1*np.power(a1,2)*np.multiply(k, np.power(1-a1,k-1)) + f2*np.power(a2,2)*np.multiply(k, np.power(1-a2,k-1)) + f3*np.power(a3,2)*np.multiply(k, np.power(1-a3,k-1))
+def fit_N_Flory(logM,w,nb_Flory) -> tuple:
+    mz = np.ones(nb_Flory-1)*1/nb_Flory
+    tau = np.linspace(0.0003, 0.0005, nb_Flory)
+    p0 = list(mz) + list(tau)
+    bounds = (0,1)
+    params, pcov = curve_fit(Flory_multi, logM, w, p0 = p0, bounds=bounds)
+    return params 
 
-def Flory_multi(k, *args):
-    if len(args) < 2:
-        raise ValueError("Number of parameter must be at least 2")    
-    elif len(args)%2:
-        raise ValueError("number of parameter should be a factor of 2")
-    nb_Flory = len(args) // 2
-    Flory_sum = Flory(k,1,args[1])
-    if nb_Flory > 1:
-        for i in range(1,nb_Flory):
-            Flory_sum += Flory(k,args[2*i],args[2*i+1])
-    print(args[0])
-    print(args[1])
-    
-    return args[0]*Flory_sum
+def plot_N_Flory(logM,w,nb_Flory,params) -> None:
+    fig, ax = plt.subplots()
+    if nb_Flory ==1:
+        ax.plot(logM, Flory(logM,params[0]), label=f'Flory')
+        print(f"Mn = {1/params[0]:.0f}")
+    else:
+        wlogM_tot = 0
+        for i in range(0,nb_Flory-1):
+            wlogM = params[i]*Flory(logM,params[nb_Flory-1+i])
+            ax.plot(logM, wlogM, label=f'Flory_{i+1}')
+            print(f"m_{i+1} = {params[i]:.3f}\nMn_{i+1} = {1/params[nb_Flory-1+i]:.0f}")
+            wlogM_tot = np.add(wlogM_tot,wlogM)
+        wlogM = (1-np.sum([params[k] for k in range(0,nb_Flory-1)]))*Flory(logM,params[-1])
+        ax.plot(logM, wlogM, label=f'Flory_{nb_Flory}')
+        print(f"m_{nb_Flory} = {(1-np.sum([params[k] for k in range(0,nb_Flory-1)])):.3f}\nMn_{nb_Flory} = {1/params[1]:.0f}")
+        wlogM_tot = np.add(wlogM_tot,wlogM)
+        ax.plot(logM, wlogM_tot, 'r--', label=f'Flory_cumul')
+    ax.plot(logM, w, 'k-', label='MMD')
+    ax.set_xscale('linear')
+    ax.grid()
+    ax.legend()
+    ax.set_title(f"Fitting par {nb_Flory} Flory")
+    plt.show(block = True)
 
-# p0 = [1, 0.0006] #, 1, 0.0004]
-# bounds = (0,[np.inf, 1]) #, 10, 1])
-# [l, a1], pcov = curve_fit(Flory_multi, k, w, p0 = p0, bounds=bounds)
-# print(np.linalg.cond(pcov))
-# wk1 = 1*np.power(a1,2)*np.multiply(k,np.power(1-a1,k-1))
-# # wk2 = f2*np.power(a2,2)*np.multiply(k,np.power(1-a2,k-1))
-# # wk3 = f3*np.power(a3,2)*np.multiply(k,np.power(1-a3,k-1))
-# wktot = l*(wk1)
-# # Plot
-# fig, ax = plt.subplots()
-# ax.plot(M, wk1, 'r', label='Flory_1')
-# # ax.plot(M, wk2, 'b', label='Flory_2')
-# # ax.plot(M, wk3, 'g', label='Flory_3')
-# ax.plot(M, wktot, 'k-', label='Sum')
-# ax.plot(M, w, '--', label='MMD')
-# ax.set_xscale('log')
-# ax.grid()
-# ax.legend()
-# plt.show(block = True)
-
-# p0 = [1000, 1000, 1000, 0.0002, 0.0004, 0.0006]
-# bounds = (0,[np.inf,np.inf,np.inf,1,1,1])
-# [f1,f2,f3,a1,a2,a3], res_cov = curve_fit(Flory3, k, w, p0 = p0, bounds=bounds)
-# print([f1,Mpe/a1,f2,Mpe/a2,f3,Mpe/a3])
-# # Distributions de Flory
-# wk1 = f1*np.power(a1,2)*np.multiply(k,np.power(1-a1,k-1))
-# wk2 = f2*np.power(a2,2)*np.multiply(k,np.power(1-a2,k-1))
-# wk3 = f3*np.power(a3,2)*np.multiply(k,np.power(1-a3,k-1))
-# wktot = (wk1 + wk2 + wk3)
-# Plot
-# fig, ax = plt.subplots()
-# ax.plot(M, wk1, 'r', label='Flory_1')
-# ax.plot(M, wk2, 'b', label='Flory_2')
-# ax.plot(M, wk3, 'g', label='Flory_3')
-# ax.plot(M, wktot, 'k-', label='Sum')
-# ax.plot(M, w, '--', label='MMD')
-# ax.set_xscale('log')
-# ax.grid()
-# ax.legend()
-# plt.show(block = True)
-
-p0 = [1000,0.0004]
-bounds = (0,[np.inf,1])
-[f,a], pcov = curve_fit(Flory, np.log(k), w, p0 = p0, bounds=bounds)
-wk = Flory(k,f,a)
-print(np.linalg.cond(pcov))
-# Plot
-fig, ax = plt.subplots()
-ax.plot(M, wk, 'r', label='Flory')
-ax.plot(M, w, '--', label='MMD')
-ax.set_xscale('log')
-ax.grid()
-ax.legend()
-plt.show(block = True)
-
+for N in [3]:
+    params = fit_N_Flory(logM, w, N)
+    plot_N_Flory(logM,w,N,params)
