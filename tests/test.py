@@ -3,19 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize, curve_fit
 
-# Import du fichier
-file_path = 'tests\GPCIR TOTAL-23-0263.xls'
-df_file = pd.read_excel(file_path, sheet_name='Data')
-df_data = df_file[['LogM conventional ','Weight fraction / LogM ']]
-df_data = df_data.rename(columns={'LogM conventional ':'LogM','Weight fraction / LogM ':'w'})
-df_data = df_data.dropna()
-df_data = df_data[df_data['LogM'] > 2.2]
-df_data['M'] = np.power(10,df_data['LogM'].values)
-
-# Interpolation des valeurs sur 1000 points
-logM = np.linspace(np.min(df_data['LogM']),np.max(df_data['LogM']),1000)
-w = np.interp(logM, df_data['LogM'].values[::-1], df_data['w'].values[::-1], )
-
 # Creation des fonctions Flory
 def Flory(logM,tau):
     M = np.power(10,logM)
@@ -67,6 +54,20 @@ def plot_N_Flory(logM,w,nb_Flory,params) -> None:
     ax.set_title(f"Fitting par {nb_Flory} Flory")
     plt.show(block = True)
 
+# Import du fichier
+file_path = 'tests\GPCIR TOTAL-23-0263.xls'
+df_file = pd.read_excel(file_path, sheet_name='Data')
+df_data = df_file[['LogM conventional ','Weight fraction / LogM ']]
+df_data = df_data.rename(columns={'LogM conventional ':'LogM','Weight fraction / LogM ':'w'})
+df_data = df_data.dropna()
+df_data = df_data[df_data['LogM'] > 2.2]
+df_data['M'] = np.power(10,df_data['LogM'].values)
+
+# Interpolation des valeurs sur 1000 points
+logM = np.linspace(np.min(df_data['LogM']),np.max(df_data['LogM']),1000)
+w = np.interp(logM, df_data['LogM'].values[::-1], df_data['w'].values[::-1], )
+
+# Lancement du fitting et affichage des résultats
 for N in [1,2,3,4]:
     print(f"Fitting par {N} Flory")
     params = fit_N_Flory(logM, w, N)
