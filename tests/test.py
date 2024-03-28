@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize, curve_fit
 
 # Import du fichier
-file_path = 'tests\GPCIR TOTAL-23-0259.xls'
+file_path = 'tests\GPCIR TOTAL-23-0263.xls'
 df_file = pd.read_excel(file_path, sheet_name='Data')
 df_data = df_file[['LogM conventional ','Weight fraction / LogM ']]
 df_data = df_data.rename(columns={'LogM conventional ':'LogM','Weight fraction / LogM ':'w'})
@@ -57,7 +57,7 @@ def plot_N_Flory(logM,w,nb_Flory,params) -> None:
             wlogM_tot = np.add(wlogM_tot,wlogM)
         wlogM = (1-np.sum([params[k] for k in range(0,nb_Flory-1)]))*Flory(logM,params[-1])
         ax.plot(logM, wlogM, label=f'Flory_{nb_Flory}')
-        print(f"m_{nb_Flory} = {(1-np.sum([params[k] for k in range(0,nb_Flory-1)])):.3f}\nMn_{nb_Flory} = {1/params[1]:.0f}")
+        print(f"m_{nb_Flory} = {(1-np.sum([params[k] for k in range(0,nb_Flory-1)])):.3f}\nMn_{nb_Flory} = {1/params[-1]:.0f}")
         wlogM_tot = np.add(wlogM_tot,wlogM)
         ax.plot(logM, wlogM_tot, 'r--', label=f'Flory_cumul')
     ax.plot(logM, w, 'k-', label='MMD')
@@ -67,6 +67,7 @@ def plot_N_Flory(logM,w,nb_Flory,params) -> None:
     ax.set_title(f"Fitting par {nb_Flory} Flory")
     plt.show(block = True)
 
-for N in [3]:
+for N in [1,2,3,4]:
+    print(f"Fitting par {N} Flory")
     params = fit_N_Flory(logM, w, N)
     plot_N_Flory(logM,w,N,params)
