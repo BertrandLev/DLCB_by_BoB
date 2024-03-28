@@ -55,7 +55,7 @@ def plot_N_Flory(logM,w,nb_Flory,params) -> None:
     plt.show(block = True)
 
 # Import du fichier
-file_path = 'tests\GPCIR TOTAL-23-0263.xls'
+file_path = 'tests\GPCIR TOTAL-23-0267.xls'
 df_file = pd.read_excel(file_path, sheet_name='Data')
 df_data = df_file[['LogM conventional ','Weight fraction / LogM ']]
 df_data = df_data.rename(columns={'LogM conventional ':'LogM','Weight fraction / LogM ':'w'})
@@ -68,7 +68,10 @@ logM = np.linspace(np.min(df_data['LogM']),np.max(df_data['LogM']),1000)
 w = np.interp(logM, df_data['LogM'].values[::-1], df_data['w'].values[::-1], )
 
 # Lancement du fitting et affichage des résultats
-for N in [1,2,3,4]:
+for N in [1,2,3,4,5,6]:
     print(f"Fitting par {N} Flory")
-    params = fit_N_Flory(logM, w, N)
-    plot_N_Flory(logM,w,N,params)
+    try:
+        params = fit_N_Flory(logM, w, N)
+        plot_N_Flory(logM,w,N,params)
+    except Exception as e:
+        print("Une erreur est survenue lors du fit:",e)
