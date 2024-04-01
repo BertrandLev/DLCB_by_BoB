@@ -18,7 +18,7 @@ class FloryFitTab(QWidget):
         # Right Part
         right_layout = QVBoxLayout()
         self.plot_GPC = pg.PlotWidget()
-        right_layout.addWidget(self.plot_GPC)
+        right_layout.addWidget(self.plot_GPC,1)
 
         # TEST Generate some sample data
         x = np.linspace(0, 10, 100)
@@ -26,7 +26,7 @@ class FloryFitTab(QWidget):
         self.plot_GPC.plot(x, y, pen='b', name='Sine Curve')
 
         # Set layouts
-        main_layout.addLayout(left_layout)
-        main_layout.addLayout(right_layout)
+        main_layout.addLayout(left_layout,0,0)
+        main_layout.addLayout(right_layout,0,1)
         self.setLayout(main_layout)
 
