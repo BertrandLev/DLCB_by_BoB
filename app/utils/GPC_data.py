@@ -13,7 +13,7 @@ class GPC():
 
     def __repr__(self) -> str:
         return "\n".join(
-            ['{:<13}'.format(key) + ": " + val for key,val in self.dict_info.items()])
+            ['{:<13}'.format(key) + " : " + val for key,val in self.dict_info.items()])
 
     def import_file(self, file_path: str):
         # Lecture des données
