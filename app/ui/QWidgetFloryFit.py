@@ -1,8 +1,8 @@
 import pyqtgraph as pg
 import numpy as np
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout,QPushButton,QLabel, QLineEdit,
-                             QSplitter)
+from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
+                             QLineEdit, QSplitter, QTableView)
 
 
 class FloryFitTab(QWidget):
@@ -10,19 +10,19 @@ class FloryFitTab(QWidget):
         super().__init__()
 
         # Main Layout
-        main_layout = QVBoxLayout()
-        splitter = QSplitter(self)
-        splitter.setOrientation(Qt.Orientation.Horizontal)
-        main_layout.addWidget(splitter)
+        main_layout = QHBoxLayout()
+        main_splitter = QSplitter(self)
+        main_splitter.setOrientation(Qt.Orientation.Horizontal)
+        main_layout.addWidget(main_splitter)
 
         # Left Part
-        left_part = QWidget(splitter)
+        left_part = QWidget(main_splitter)
         left_layout = QGridLayout(left_part)
         file_label = QLabel("File Name")
         file_entry = QLineEdit()
         file_button = QPushButton("...")
         file_infoTitle = QLabel("Sample info:")
-        file_info = QLabel("Desciption du sample", )
+        file_info = QLabel("Description du sample")
         file_info.setFrameShape(QLabel.Shape.Box)
         file_info.setAlignment(Qt.AlignmentFlag.AlignTop)
         left_layout.addWidget(file_label,0,0)
@@ -33,10 +33,16 @@ class FloryFitTab(QWidget):
         left_layout.setRowStretch(3,1)
 
         # Right Part
-        right_part = QWidget(splitter)
-        right_layout = QVBoxLayout(right_part)
+        right_splitter = QSplitter(main_splitter)
+        right_splitter.setOrientation(Qt.Orientation.Vertical)
+        r_top_part = QWidget(right_splitter)
+        r_top_layout = QVBoxLayout(r_top_part)
         self.plot_GPC = pg.PlotWidget()
-        right_layout.addWidget(self.plot_GPC,1)
+        r_top_layout.addWidget(self.plot_GPC)
+        r_bot_part = QWidget(right_splitter)
+        r_bot_layout = QVBoxLayout(r_bot_part)
+        self.result_table = QTableView()
+        r_bot_layout.addWidget(self.result_table)        
 
         # TEST Generate some sample data
         x = np.linspace(0, 10, 100)
@@ -44,7 +50,5 @@ class FloryFitTab(QWidget):
         self.plot_GPC.plot(x, y, pen='b', name='Sine Curve')
 
         # Set layouts
-        # main_layout.addLayout(left_layout,0,0)
-        # main_layout.addLayout(right_layout,0,1)
         self.setLayout(main_layout)
 
