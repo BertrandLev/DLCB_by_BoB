@@ -3,7 +3,8 @@ import numpy as np
 from utils.GPC_data import GPC
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
-                             QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox)
+                             QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
+                             QTextEdit)
 
 
 class FloryFitTab(QWidget):
@@ -31,9 +32,10 @@ class FloryFitTab(QWidget):
         file_button = QPushButton("...")
         file_button.clicked.connect(self.openFileDialog)
         file_infoTitle = QLabel("Sample info:")
-        self.file_info = QLabel("Description du sample")
+        self.file_info = QTextEdit()
         self.file_info.setFrameShape(QLabel.Shape.Box)
-        self.file_info.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.file_info.setReadOnly(True)
+        self.file_info.setFixedHeight(100)
         file_layout.addWidget(file_label,0,0)
         file_layout.addWidget(self.file_entry,1,0)
         file_layout.addWidget(file_button,1,1)
@@ -44,12 +46,22 @@ class FloryFitTab(QWidget):
         fit_layout = QGridLayout(fit_box)
         fit_label = QLabel("Number of Flory")
         self.fit_entry = QSpinBox()
+        self.fit_entry.setMinimumWidth(80)
         self.fit_entry.setValue(1)
         fit_layout.addWidget(fit_label,0,0)
         fit_layout.addWidget(self.fit_entry,0,1)
+        fit_layout.setColumnStretch(0,1)
+        # Add log widgets
+        log_box = QGroupBox("Log")
+        log_layout = QVBoxLayout(log_box)
+        self.log_display = QTextEdit()
+        self.log_display.setReadOnly(True)
+        log_layout.addWidget(self.log_display,0)
+        self.appendLogMessage("Demarrage du logiciel...")
         # Left layout
         left_layout.addWidget(file_box,0)
         left_layout.addWidget(fit_box,1)
+        left_layout.addWidget(log_box,2)
         left_layout.setStretch(1,1)
 
         # Right Part
@@ -83,6 +95,9 @@ class FloryFitTab(QWidget):
             pen=pen,
             name='GPC Data')
 
+    def appendLogMessage(self, message:str)-> None:
+        self.log_display.append(message)
+
     def openFileDialog(self):
         # Open a file dialog
         filename, _ = QFileDialog.getOpenFileName(self, "Select File", "", "All Files (*)")
@@ -90,7 +105,7 @@ class FloryFitTab(QWidget):
         if filename:
             self.file_entry.setText(filename)
             self.data_GPC.import_file(filename)
-            self.file_info.setText(self.data_GPC.__repr__())
+            self.file_info.append(self.data_GPC.__repr__())
             self.GPC_curve.setData(self.data_GPC.logM,self.data_GPC.w)
 
     
