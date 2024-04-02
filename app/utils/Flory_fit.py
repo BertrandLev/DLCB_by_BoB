@@ -8,21 +8,22 @@ def Flory(logM,tau):
     M = np.power(10,logM)
     return 2.3026*tau**2*np.multiply(np.power(M,2),np.exp(-M*tau))
 
-def Flory_multi(logM, *args):
-    if len(args) < 1:
-        raise ValueError("Number of parameter must be at least 1")    
-    elif len(args)%2 == 0:
-        raise ValueError("number of parameter should not be a factor of 2")
-    nb_Flory = len(args) // 2 + 1
-    if nb_Flory == 1:
-        return Flory(logM,args[0])
-    else :
-        Flory_sum = (1-np.sum([args[k] for k in range(0,nb_Flory-1)]))*Flory(logM,args[-1])
-        for i in range(0,nb_Flory-1):
-            Flory_sum += args[i]*Flory(logM,args[nb_Flory-1+i])
-        return Flory_sum
-
 def fit_N_Flory(logM,w,nb_Flory) -> tuple:
+    
+    def Flory_multi(logM, *args):
+        if len(args) < 1:
+            raise ValueError("Number of parameter must be at least 1")    
+        elif len(args)%2 == 0:
+            raise ValueError("number of parameter should not be a factor of 2")
+        nb_Flory = len(args) // 2 + 1
+        if nb_Flory == 1:
+            return Flory(logM,args[0])
+        else :
+            Flory_sum = (1-np.sum([args[k] for k in range(0,nb_Flory-1)]))*Flory(logM,args[-1])
+            for i in range(0,nb_Flory-1):
+                Flory_sum += args[i]*Flory(logM,args[nb_Flory-1+i])
+            return Flory_sum
+    
     mz = np.ones(nb_Flory-1)*1/nb_Flory
     tau = np.linspace(0.0003, 0.0005, nb_Flory)
     p0 = list(mz) + list(tau)

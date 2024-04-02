@@ -1,6 +1,7 @@
 import pyqtgraph as pg
 import numpy as np
 from utils.GPC_data import GPC
+from utils import Flory_fit
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
@@ -57,7 +58,7 @@ class FloryFitTab(QWidget):
         self.log_display = QTextEdit()
         self.log_display.setReadOnly(True)
         log_layout.addWidget(self.log_display,0)
-        self.appendLogMessage("Demarrage du logiciel...")
+        self.appendLogMessage("Initialisation de la session...")
         # Left layout
         left_layout.addWidget(file_box,0)
         left_layout.addWidget(fit_box,1)
@@ -82,8 +83,6 @@ class FloryFitTab(QWidget):
         self.plot_GPC.showGrid(True, True)
         self.plot_GPC.setMouseEnabled(False)
         self.plot_GPC.getPlotItem().getViewBox().setBorder(pg.mkPen(color=(0,0,0),width=1))
-        # self.plot_GPC.getAxis('top').setStyle(showValues=True)
-        # self.plot_GPC.getAxis('right').setStyle(showValues=True)
         self.plot_GPC.setLabel('left',
                                '<span style="color: red; font-size: 18px">w</span>')
         self.plot_GPC.setLabel('bottom',
@@ -95,18 +94,40 @@ class FloryFitTab(QWidget):
             self.x, self.y,
             pen=pen,
             name='GPC Data')
+        # Message de démarrage
+        self.appendLogMessage("Initialisation terminée. Veuillez sélectionner un fichier de donnée GPC-ONE")
 
-    def appendLogMessage(self, message:str)-> None:
+    def appendLogMessage(self, message:str) -> None:
         self.log_display.append(message)
 
-    def openFileDialog(self):
+    def openFileDialog(self) -> None:
         # Open a file dialog
         filename, _ = QFileDialog.getOpenFileName(self, "Select File", "", "All Files (*)")
         # Display the selected file name
         if filename:
             self.file_entry.setText(filename)
+            # Chargement du fichier
             self.data_GPC.import_file(filename)
+            # Affichage des informations de l'échantillons
             self.file_info.append(self.data_GPC.__repr__())
+            # Affichage de la courbes de GPC expérimentales
             self.GPC_curve.setData(self.data_GPC.logM,self.data_GPC.w)
+            # Fit de la courbe expérimentale
+            self.fitFlory()
+
+    def fitFlory(self) -> None:
+        # Effectue le fit de la courbe expérimentale
+        logM = self.data_GPC.logM
+        w = self.data_GPC.w
+        N = self.fit_entry.value()
+        self.appendLogMessage(f"Démarrage du fit de la courbe GPC par {N} Flory.")
+        try:
+            params = Flory_fit.fit_N_Flory(logM,w,N)
+            self.appendLogMessage("Fitting terminée avec succés")
+            self.appendLogMessage(f"Paramètres obtenus: {params}")
+        except Exception as e:
+            self.appendLogMessage("Echec du fit. Erreur : {e}")
+
+
 
     
