@@ -3,7 +3,7 @@ import numpy as np
 from utils.GPC_data import GPC
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
-                             QLineEdit, QSplitter, QTableView, QFileDialog)
+                             QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox)
 
 
 class FloryFitTab(QWidget):
@@ -15,14 +15,17 @@ class FloryFitTab(QWidget):
         self.data_GPC = GPC()
 
         # Main Layout
-        main_layout = QHBoxLayout()
-        main_splitter = QSplitter(self)
+        main_layout = QHBoxLayout(self)
+        main_splitter = QSplitter()
         main_splitter.setOrientation(Qt.Orientation.Horizontal)
         main_layout.addWidget(main_splitter)
 
         # Left Part
         left_part = QWidget(main_splitter)
-        left_layout = QGridLayout(left_part)
+        left_layout = QVBoxLayout(left_part)
+        # Add file widgets
+        file_box = QGroupBox("File Selection")
+        file_layout = QGridLayout(file_box)
         file_label = QLabel("File Name")
         self.file_entry = QLineEdit("")
         file_button = QPushButton("...")
@@ -31,13 +34,23 @@ class FloryFitTab(QWidget):
         self.file_info = QLabel("Description du sample")
         self.file_info.setFrameShape(QLabel.Shape.Box)
         self.file_info.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        left_layout.addWidget(file_label,0,0)
-        left_layout.addWidget(self.file_entry,1,0)
-        left_layout.addWidget(file_button,1,1)
-        left_layout.addWidget(file_infoTitle,2,0)
-        left_layout.addWidget(self.file_info,3,0,1,2)
-        left_layout.setRowStretch(3,1)
+        file_layout.addWidget(file_label,0,0)
+        file_layout.addWidget(self.file_entry,1,0)
+        file_layout.addWidget(file_button,1,1)
+        file_layout.addWidget(file_infoTitle,2,0)
+        file_layout.addWidget(self.file_info,3,0,1,2)
+        # Add fitting option widgets
+        fit_box = QGroupBox("Fit Options")
+        fit_layout = QGridLayout(fit_box)
+        fit_label = QLabel("Number of Flory")
+        self.fit_entry = QSpinBox()
+        self.fit_entry.setValue(1)
+        fit_layout.addWidget(fit_label,0,0)
+        fit_layout.addWidget(self.fit_entry,0,1)
+        # Left layout
+        left_layout.addWidget(file_box,0)
+        left_layout.addWidget(fit_box,1)
+        left_layout.setStretch(1,1)
 
         # Right Part
         right_splitter = QSplitter(main_splitter)
@@ -69,9 +82,6 @@ class FloryFitTab(QWidget):
             self.x, self.y,
             pen=pen,
             name='GPC Data')
-
-        # Set layouts
-        self.setLayout(main_layout)
 
     def openFileDialog(self):
         # Open a file dialog
