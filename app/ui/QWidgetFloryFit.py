@@ -48,7 +48,7 @@ class FloryFitTab(QWidget):
         self.fit_entry = QSpinBox()
         self.fit_entry.setMinimumWidth(80)
         self.fit_entry.setValue(1)
-        fit_layout.addWidget(fit_label,0,0)
+        fit_layout.addWidget(fit_label,0,0,)
         fit_layout.addWidget(self.fit_entry,0,1)
         fit_layout.setColumnStretch(0,1)
         # Add log widgets
@@ -62,7 +62,8 @@ class FloryFitTab(QWidget):
         left_layout.addWidget(file_box,0)
         left_layout.addWidget(fit_box,1)
         left_layout.addWidget(log_box,2)
-        left_layout.setStretch(1,1)
+        left_layout.setStretch(1,0)
+        left_layout.setStretch(2,1)
 
         # Right Part
         right_splitter = QSplitter(main_splitter)
