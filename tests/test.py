@@ -5,12 +5,12 @@ import pandas as pd
 
 # Import du fichier
 # file_path = 'tests\GPCIR TOTAL-23-0259.xls'
-file_path = 'tests\GPCIR TOTAL-23-0263.xls'
+# file_path = 'tests\GPCIR TOTAL-23-0263.xls'
 # file_path = 'tests\GPCIR TOTAL-23-0267.xls'
-data = GPC()
-data.import_file(file_path)
+# data = GPC()
+# data.import_file(file_path)
 
-print(data)
+# print(data)
 
 
 # Lancement du fitting et affichage des résultats
