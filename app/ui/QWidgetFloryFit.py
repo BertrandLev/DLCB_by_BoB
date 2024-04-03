@@ -126,12 +126,8 @@ class FloryFitTab(QWidget):
         logM = self.data_GPC.logM
         w = self.data_GPC.w
         N = self.fit_entry.value()
-        # Reset l'affichage des courbes
-        self.plot_GPC.clear()
-        # Affichage de la courbes de GPC expérimentales
-        pen = pg.mkPen(color=(255, 0, 0), width=2)
-        self.plot_GPC.plot(self.data_GPC.logM,self.data_GPC.w,
-                           pen=pen, name='GPC Data')
+        # Affiche la courbe
+        self.displayFitFlory(self)
         # Effectue le fit de la courbe expérimentale
         self.appendLogMessage(f"Start of fitting with {N} Flory.")
         try:
@@ -141,6 +137,12 @@ class FloryFitTab(QWidget):
         except Exception as e:
             self.appendErrorMessage("Fitting failure. Error : {e}")
 
-
+    def displayFitFlory(self) -> None:
+        # Reset l'affichage des courbes
+        self.plot_GPC.clear()
+        # Affichage de la courbes de GPC expérimentales
+        pen = pg.mkPen(color=(255, 0, 0), width=2)
+        self.plot_GPC.plot(self.data_GPC.logM,self.data_GPC.w,
+                           pen=pen, name='GPC Data')
 
     
