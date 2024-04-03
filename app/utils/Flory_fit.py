@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
 # Creation des fonctions Flory
-def Flory(logM,tau):
+def Flory(logM,tau) -> np.ndarray:
     M = np.power(10,logM)
     return 2.3026*tau**2*np.multiply(np.power(M,2),np.exp(-M*tau))
 
 def fit_N_Flory(logM,w,nb_Flory) -> tuple:
     
-    def Flory_multi(logM, *args):
+    def Flory_multi(logM, *args) -> np.ndarray:
         if len(args) < 1:
             raise ValueError("Number of parameter must be at least 1")    
         elif len(args)%2 == 0:
@@ -30,6 +30,19 @@ def fit_N_Flory(logM,w,nb_Flory) -> tuple:
     bounds = (0,1)
     params, pcov = curve_fit(Flory_multi, logM, w, p0 = p0, bounds=bounds)
     return (params, pcov) 
+
+def get_model_prediction(logM,nb_Flory,params) -> np.ndarray:
+    if nb_Flory == 1 :
+        return Flory(logM,params[0]).reshape(1, -1)
+    elif nb_Flory>1: 
+        m_N = 1 - np.sum([params[0:nb_Flory]])
+        params = np.insert(params, nb_Flory-1, m_N)
+        w_list = []
+        for i in range(0,nb_Flory):
+            w = params[i]*Flory(logM, params[nb_Flory-1+i])
+            w_list.append(w)
+        return np.array(w_list)
+    return np.empty(1)
 
 def plot_N_Flory(logM,w,nb_Flory,params) -> None:
     fig, ax = plt.subplots()

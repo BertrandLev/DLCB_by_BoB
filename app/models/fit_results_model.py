@@ -5,33 +5,33 @@ from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex
 class ParameterTableModel(QAbstractTableModel):
     def __init__(self) -> None:
         super().__init__()
-        self.numFlory = 0
+        self.nb_Flory = 0
         self.parameters = []
         self.errors = []
 
-    def setParameters(self, parameters :list, errors : list, numFlory : int) -> None:
-        self.numFlory = numFlory
+    def setParameters(self, parameters :list, errors : list, nb_Flory : int) -> None:
+        self.nb_Flory = nb_Flory
         self.parameters = parameters
         self.errors = errors
-        if self.numFlory == 1:
+        if self.nb_Flory == 1:
             self.parameters = np.append(1.0, self.parameters)
             self.errors = np.append(0.0, self.errors)
         else:
-            m_N = 1 - np.sum([self.parameters[0:self.numFlory]])
-            std_m_N = np.sum([self.errors[0:self.numFlory]])
-            self.parameters = np.insert(self.parameters, self.numFlory-1, m_N)
-            self.errors = np.insert(self.errors, self.numFlory-1, std_m_N)
+            m_N = 1 - np.sum([self.parameters[0:self.nb_Flory]])
+            std_m_N = np.sum([self.errors[0:self.nb_Flory]])
+            self.parameters = np.insert(self.parameters, self.nb_Flory-1, m_N)
+            self.errors = np.insert(self.errors, self.nb_Flory-1, std_m_N)
         
         self.layoutChanged.emit()
 
     def resetData(self):
-        self.numFlory = 0
+        self.nb_Flory = 0
         self.parameters.clear()
         self.errors.clear()
         self.layoutChanged.emit()
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
-        return self.numFlory
+        return self.nb_Flory
     
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 5
@@ -48,11 +48,11 @@ class ParameterTableModel(QAbstractTableModel):
             elif col == 1:
                 return "{:.4e}".format(self.errors[row])
             elif col == 2:
-                return "{:.4e}".format(self.parameters[self.numFlory + row])
+                return "{:.4e}".format(self.parameters[self.nb_Flory + row])
             elif col == 3:
-                return "{:.4e}".format(self.errors[self.numFlory + row])
+                return "{:.4e}".format(self.errors[self.nb_Flory + row])
             else:
-                return str(int(np.divide(1,self.parameters[self.numFlory + row])))
+                return str(int(np.divide(1,self.parameters[self.nb_Flory + row])))
         
         if role == Qt.ItemDataRole.TextAlignmentRole:
             return int(Qt.AlignmentFlag.AlignCenter)
