@@ -29,7 +29,7 @@ def fit_N_Flory(logM,w,nb_Flory) -> tuple:
     p0 = list(mz) + list(tau)
     bounds = (0,1)
     params, pcov = curve_fit(Flory_multi, logM, w, p0 = p0, bounds=bounds)
-    return params 
+    return (params, pcov) 
 
 def plot_N_Flory(logM,w,nb_Flory,params) -> None:
     fig, ax = plt.subplots()

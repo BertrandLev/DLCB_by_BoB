@@ -92,7 +92,7 @@ class FloryFitTab(QWidget):
         self.appendLogMessage("Session ready. Select a GPC-ONE file to begin.")
 
     def appendLogMessage(self, message:str) -> None:
-        self.log_display.append(message)
+        self.log_display.append("> "+message)
 
     def appendErrorMessage(self, message:str) -> None:
         errorMessage = "<font color='red'>"+"Error: "+message+"</font>"
@@ -133,9 +133,10 @@ class FloryFitTab(QWidget):
         # Effectue le fit de la courbe expérimentale
         self.appendLogMessage(f"Start of fitting with {N} Flory.")
         try:
-            params = Flory_fit.fit_N_Flory(logM,w,N)
+            params, pcov = Flory_fit.fit_N_Flory(logM,w,N)
             self.appendLogMessage("End of Fitting with success.")
             self.appendLogMessage(f"Fitting Parameters: {params}")
+            self.appendLogMessage(f"Parameters stderr : {np.sqrt(np.diag(pcov))}")
         except Exception as e:
             self.appendErrorMessage("Fitting failure. Error : {e}")
 
