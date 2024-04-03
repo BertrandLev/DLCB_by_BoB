@@ -1,5 +1,6 @@
 import pyqtgraph as pg
 import numpy as np
+from models.fit_results_model import ParameterTableModel
 from utils.GPC_data import GPC
 from utils import Flory_fit
 from PyQt6.QtCore import Qt
@@ -10,11 +11,11 @@ from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPu
 
 class FloryFitTab(QWidget):
     
-    
     def __init__(self) -> None:
         super().__init__()
         # Data
         self.data_GPC = GPC()
+        self.param_model = ParameterTableModel()
 
         # Main Layout
         main_layout = QHBoxLayout(self)
@@ -77,6 +78,7 @@ class FloryFitTab(QWidget):
         r_bot_part = QWidget(right_splitter)
         r_bot_layout = QVBoxLayout(r_bot_part)
         self.result_table = QTableView()
+        self.result_table.setModel(self.param_model)
         r_bot_layout.addWidget(self.result_table)        
 
         # Customize graph and set initial value
@@ -135,8 +137,7 @@ class FloryFitTab(QWidget):
         try:
             params, pcov = Flory_fit.fit_N_Flory(logM,w,N)
             self.appendLogMessage("End of Fitting with success.")
-            self.appendLogMessage(f"Fitting Parameters: {params}")
-            self.appendLogMessage(f"Parameters stderr : {np.sqrt(np.diag(pcov))}")
+            self.param_model.setParameters(params, np.sqrt(np.diag(pcov)), N)
         except Exception as e:
             self.appendErrorMessage("Fitting failure. Error : {e}")
 
