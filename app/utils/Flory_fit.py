@@ -39,7 +39,7 @@ def get_model_prediction(logM,nb_Flory,params) -> np.ndarray:
         params = np.insert(params, nb_Flory-1, m_N)
         w_list = []
         for i in range(0,nb_Flory):
-            w = params[i]*Flory(logM, params[nb_Flory-1+i])
+            w = params[i]*Flory(logM, params[nb_Flory+i])
             w_list.append(w)
         return np.array(w_list)
     return np.empty(1)
