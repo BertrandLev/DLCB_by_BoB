@@ -150,7 +150,7 @@ class FloryFitTab(QWidget):
                                   symbol='o', symbolSize=4, symbolBrush='r', symbolPen=None,
                                   name='GPC Data')
         # Affichage des fits
-        colors = ('g','m','c','b','y',(200,200,200))
+        colors = ('g','m','c','b','y',(200,200,200),(200,200,0),(200,0,200),(200,200,0))
         w = Flory_fit.get_model_prediction(self.data_GPC.logM,
                                            self.fit_entry.value(),
                                            params)
