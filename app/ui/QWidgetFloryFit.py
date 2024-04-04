@@ -83,13 +83,17 @@ class FloryFitTab(QWidget):
 
         # Customize graph and set initial value
         self.plot_GPC.setBackground('w')
-        self.plot_GPC.showGrid(True, True)
-        self.plot_GPC.setMouseEnabled(False)
+        self.plot_GPC.showGrid(x=True, y=True)
+        # self.plot_GPC.setMouseEnabled(False)
         self.plot_GPC.getPlotItem().getViewBox().setBorder(pg.mkPen(color=(0,0,0),width=1))
         self.plot_GPC.setLabel('left',
                                '<span style="color: red; font-size: 18px">w</span>')
         self.plot_GPC.setLabel('bottom',
                                '<span style="color: red; font-size: 18px">Log M</span>')
+        self.plot_GPC.addLegend(labelTextSize='10pt', labelTextColor=(0, 0, 0),
+                               pen={'color':(0, 0, 0),'width':1},
+                               brush=(240, 240, 240, 150))
+
         # Message de démarrage
         self.appendLogMessage("Session ready. Select a GPC-ONE file to begin.")
 
@@ -141,17 +145,26 @@ class FloryFitTab(QWidget):
         # Reset l'affichage des courbes
         self.plot_GPC.clear()
         # Affichage de la courbes de GPC expérimentales
-        pen = pg.mkPen(color=(255, 0, 0), width=2)
-        self.plot_GPC.plot(self.data_GPC.logM,
-                           self.data_GPC.w,
-                           pen=pen, name='GPC Data')
+        # pen = pg.mkPen(color=(255, 0, 0))
+        self.plot_GPC.scatterPlot(self.data_GPC.logM, self.data_GPC.w,
+                                  symbol='o', symbolSize=4, symbolBrush='r', symbolPen=None,
+                                  name='GPC Data')
         # Affichage des fits
+        colors = ('g','m','c','b','y',(200,200,200))
         w = Flory_fit.get_model_prediction(self.data_GPC.logM,
                                            self.fit_entry.value(),
                                            params)
         for i in range(0,w.shape[0]):
-            pen = pg.mkPen(color=(0, 255, 0), width=1)
-            self.plot_GPC.plot(self.data_GPC.logM, w[i,:],pen=pen, name=f"Flory {i+1}")
+            pen = pg.mkPen(color=colors[i], style=Qt.PenStyle.DashLine, width=1.5)
+            self.plot_GPC.plot(self.data_GPC.logM, w[i,:],pen=pen, name=f"Flory #{i+1}")
         
+        if w.shape[0]>1:
+            pen = pg.mkPen(color=(0, 0, 0), width=2)
+            self.plot_GPC.plot(self.data_GPC.logM, np.sum(w,axis=0),pen=pen, name=f"Flory Sum")
+
+        self.plot_ResultText = pg.TextItem(text="Fit Result:\nR² = ", color=(0,0,0), anchor=(0,0),
+                                           border='k', fill='w')
+        self.plot_GPC.addItem(self.plot_ResultText)
+        self.plot_GPC.setPos(7,0.6)
 
     
