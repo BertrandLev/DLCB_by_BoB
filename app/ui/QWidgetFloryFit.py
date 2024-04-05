@@ -207,9 +207,11 @@ class FloryFitTab(QWidget):
                                             self.param_model.parameters)
                 data = np.concatenate((self.data_GPC.logM.reshape(-1,1),
                                     self.data_GPC.w.reshape(-1,1),
-                                    w.T),
-                                    axis=1)
-                titles = ["Log M","W_exp"].append([f"W_Flory#{k}" for k in range(0,nb_Flory)])
+                                    w.T), axis=1)
+                titles = ["Log M","W_exp","W_Flory_Fit"]
+                if nb_Flory>1:
+                    for i, element in enumerate([f"W_Flory_#{k}" for k in range(0,nb_Flory)]):
+                        titles.insert(2+i,element)
                 for i, title in enumerate(titles, start=9):
                     ws.cell(row=1, column=i).value = title
                 for r, values in enumerate(data, start=2):
