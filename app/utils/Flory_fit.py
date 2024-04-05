@@ -50,6 +50,7 @@ def get_model_prediction(logM,nb_Flory,params) -> np.ndarray:
         for i in range(0,nb_Flory):
             w = params[i]*Flory(logM, params[nb_Flory+i])
             w_list.append(w)
+        w_list.append(np.sum(w_list,axis=0))
         return np.array(w_list)
     return np.empty(1)
 

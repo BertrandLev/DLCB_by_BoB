@@ -81,6 +81,7 @@ class FloryFitTab(QWidget):
         self.result_display = QTextEdit()
         self.export_button = QPushButton("Export to Excel",)
         self.export_button.setFixedSize(120,40)
+        self.export_button.clicked.connect(self.Export_to_Excel)
         self.result_table = QTableView()
         self.result_table.setModel(self.param_model)
         r_bot_layout.addWidget(self.result_table,0,0,2,2)
@@ -156,27 +157,66 @@ class FloryFitTab(QWidget):
                                   symbol='o', symbolSize=4, symbolBrush='r', symbolPen=None,
                                   name='GPC Data')
         # Affichage des fits
-        colors = ('g','m','c','b','y',(200,200,200),(200,200,0),(200,0,200),(200,200,0))
         w = Flory_fit.get_model_prediction(self.data_GPC.logM,
                                            self.fit_entry.value(),
                                            self.param_model.parameters)
-        for i in range(0,w.shape[0]):
-            pen = pg.mkPen(color=colors[i], style=Qt.PenStyle.DashLine, width=1.5)
-            self.plot_GPC.plot(self.data_GPC.logM, w[i,:],pen=pen, name=f"Flory #{i+1}")
-        
+        pen = pg.mkPen(color=(0, 0, 0), width=2)
+        self.plot_GPC.plot(self.data_GPC.logM, w[-1,:],pen=pen, name=f"Flory Fit")
         if w.shape[0]>1:
-            pen = pg.mkPen(color=(0, 0, 0), width=2)
-            self.plot_GPC.plot(self.data_GPC.logM, np.sum(w,axis=0),pen=pen, name=f"Flory Sum")
+            colors = ('g','m','c','b','y',(200,200,200),(200,200,0),(200,0,200),(200,200,0))
+            for i in range(0,w.shape[0]-1):
+                pen = pg.mkPen(color=colors[i], style=Qt.PenStyle.DashLine, width=1.5)
+                self.plot_GPC.plot(self.data_GPC.logM, w[i,:],pen=pen, name=f"Flory #{i+1}")
         R2 = Flory_fit.r_squared(self.data_GPC.w, np.sum(w,axis=0))
         self.result_display.clear()
         self.result_display.append("Fit Result :")
         self.result_display.append(f"R² = {R2}")
 
-    def Export_Excel(self) -> None:
-        wb = Workbook()
-        ws = wb.active
+    def Export_to_Excel(self) -> None:
+        file_dialog = QFileDialog(self)
+        file_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+        file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+        file_dialog.setNameFilter("Excel Files (*.xlsx)")
 
+        if file_dialog.exec() == QFileDialog.DialogCode.Accepted:
+            try:
+                file_path = file_dialog.selectedFiles()[0]        
+                # Create workbook 
+                wb = Workbook()
+                ws = wb.active
+                # Affichage des infos de l'échantillons
+                ws.cell(row=1, column=1).value = "Sample informations"
+                for i, (key,value) in enumerate(self.data_GPC.dict_info.items(), start=2):
+                    ws.cell(row=i, column=1).value = key
+                    ws.cell(row=i, column=2).value = value
+                # Affichage des résultats
+                nb_Flory = self.param_model.nb_Flory
+                ws.cell(row=6, column=1).value = "Fitted Flory's Parameters"
+                for i, title in enumerate(('m_i','std m_i','Tau_i','std Tau_i','Mn'), start=2):
+                    ws.cell(row=7, column=i).value = title
+                for i in range(0,nb_Flory):
+                    ws.cell(row=8+i, column=1).value = f"Flory #{i+1}"
+                    ws.cell(row=8+i, column=2).value = self.param_model.parameters[i]
+                    ws.cell(row=8+i, column=3).value = self.param_model.errors[i]
+                    ws.cell(row=8+i, column=4).value = self.param_model.parameters[i+nb_Flory]
+                    ws.cell(row=8+i, column=5).value = self.param_model.errors[i+nb_Flory]
+                    ws.cell(row=8+i, column=6).value = int(np.divide(1, self.param_model.parameters[i+nb_Flory]))
+                # Affichage des données de courbes
+                w = Flory_fit.get_model_prediction(self.data_GPC.logM,
+                                            self.fit_entry.value(),
+                                            self.param_model.parameters)
+                data = np.concatenate((self.data_GPC.logM.reshape(-1,1),
+                                    self.data_GPC.w.reshape(-1,1),
+                                    w.T),
+                                    axis=1)
+                titles = ["Log M","W_exp"].append([f"W_Flory#{k}" for k in range(0,nb_Flory)])
+                for i, title in enumerate(titles, start=9):
+                    ws.cell(row=1, column=i).value = title
+                for r, values in enumerate(data, start=2):
+                    for c, value in enumerate(values, start=9):
+                        ws.cell(row=r, column=c).value = value
 
-
-
-    
+                wb.save(file_path)
+                self.appendLogMessage("Export to excel finish with success.")
+            except Exception as e:
+                self.appendErrorMessage(f"Error while export to excel : {e}")
