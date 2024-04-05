@@ -65,8 +65,7 @@ class ParameterTableModel(QAbstractTableModel):
                 title = ('m_i','std m_i','Tau_i','std Tau_i','Mn')
                 return title[section]
             elif orientation == Qt.Orientation.Vertical:
-                return str(section + 1)
-
+                return str(f"#{section + 1}")
         return None
 
     

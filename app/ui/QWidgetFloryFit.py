@@ -1,5 +1,6 @@
 import pyqtgraph as pg
 import numpy as np
+from openpyxl import Workbook
 from models.fit_results_model import ParameterTableModel
 from utils.GPC_data import GPC
 from utils import Flory_fit
@@ -146,7 +147,7 @@ class FloryFitTab(QWidget):
         except Exception as e:
             self.appendErrorMessage("Fitting failure. Error : {e}")
 
-    def displayFitFlory(self, params) -> None:
+    def displayFitFlory(self) -> None:
         # Reset l'affichage des courbes
         self.plot_GPC.clear()
         # Affichage de la courbes de GPC expérimentales
@@ -158,7 +159,7 @@ class FloryFitTab(QWidget):
         colors = ('g','m','c','b','y',(200,200,200),(200,200,0),(200,0,200),(200,200,0))
         w = Flory_fit.get_model_prediction(self.data_GPC.logM,
                                            self.fit_entry.value(),
-                                           params)
+                                           self.param_model.parameters)
         for i in range(0,w.shape[0]):
             pen = pg.mkPen(color=colors[i], style=Qt.PenStyle.DashLine, width=1.5)
             self.plot_GPC.plot(self.data_GPC.logM, w[i,:],pen=pen, name=f"Flory #{i+1}")
@@ -172,6 +173,10 @@ class FloryFitTab(QWidget):
         self.result_display.append(f"R² = {R2}")
 
     def Export_Excel(self) -> None:
-        pass
+        wb = Workbook()
+        ws = wb.active
+
+
+
 
     
