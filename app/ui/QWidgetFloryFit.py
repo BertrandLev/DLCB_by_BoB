@@ -76,11 +76,16 @@ class FloryFitTab(QWidget):
         self.plot_GPC = pg.PlotWidget()
         r_top_layout.addWidget(self.plot_GPC)
         r_bot_part = QWidget(right_splitter)
-        r_bot_layout = QVBoxLayout(r_bot_part)
+        r_bot_layout = QGridLayout(r_bot_part)
+        self.result_display = QTextEdit()
+        self.export_button = QPushButton("Export to Excel",)
+        self.export_button.setFixedSize(120,40)
         self.result_table = QTableView()
         self.result_table.setModel(self.param_model)
-        r_bot_layout.addWidget(self.result_table)        
-
+        r_bot_layout.addWidget(self.result_table,0,0,2,2)
+        r_bot_layout.addWidget(self.result_display,0,2,1,1,alignment=Qt.AlignmentFlag.AlignRight)
+        r_bot_layout.addWidget(self.export_button,1,2,1,1,Qt.AlignmentFlag.AlignRight)
+        
         # Customize graph and set initial value
         self.plot_GPC.setBackground('w')
         self.plot_GPC.showGrid(x=True, y=True)
@@ -161,10 +166,12 @@ class FloryFitTab(QWidget):
         if w.shape[0]>1:
             pen = pg.mkPen(color=(0, 0, 0), width=2)
             self.plot_GPC.plot(self.data_GPC.logM, np.sum(w,axis=0),pen=pen, name=f"Flory Sum")
+        R2 = Flory_fit.r_squared(self.data_GPC.w, np.sum(w,axis=0))
+        self.result_display.clear()
+        self.result_display.append("Fit Result :")
+        self.result_display.append(f"R² = {R2}")
 
-        self.plot_ResultText = pg.TextItem(text="Fit Result:\nR² = ", color=(0,0,0), anchor=(0,0),
-                                           border='k', fill='w')
-        self.plot_GPC.addItem(self.plot_ResultText)
-        self.plot_GPC.setPos(7,0.6)
+    def Export_Excel(self) -> None:
+        pass
 
     

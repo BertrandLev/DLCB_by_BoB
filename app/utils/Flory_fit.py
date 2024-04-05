@@ -67,3 +67,10 @@ def plot_N_Flory(logM,w,nb_Flory,params) -> None:
     ax.legend()
     ax.set_title(f"Fitting par {nb_Flory} Flory")
     plt.show(block = True)
+
+def r_squared(y_true, y_pred) -> float:
+    """Calculate R-squared."""
+    ss_total = np.sum((y_true - np.mean(y_true))**2)
+    ss_residual = np.sum((y_true - y_pred)**2)
+    r_squared = 1 - (ss_residual / ss_total)
+    return r_squared
