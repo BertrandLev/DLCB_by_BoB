@@ -139,13 +139,13 @@ class FloryFitTab(QWidget):
         # Effectue le fit de la courbe expérimentale
         self.appendLogMessage(f"Start of fitting with {N} Flory.")
         try:
-            params, pcov = Flory_fit.fit_N_Flory(logM,w,N)
+            params, error = Flory_fit.fit_N_Flory(logM,w,N)
             self.appendLogMessage("End of Fitting with success.")
-            self.param_model.setParameters(params, np.sqrt(np.diag(pcov)), N)
+            self.param_model.setParameters(params, error, N)
             # Affiche la courbe
-            self.displayFitFlory(params)
+            self.displayFitFlory()
         except Exception as e:
-            self.appendErrorMessage("Fitting failure. Error : {e}")
+            self.appendErrorMessage(f"Fitting failure. Error : {e}")
 
     def displayFitFlory(self) -> None:
         # Reset l'affichage des courbes

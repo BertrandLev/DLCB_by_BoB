@@ -29,14 +29,23 @@ def fit_N_Flory(logM,w,nb_Flory) -> tuple:
     p0 = list(mz) + list(tau)
     bounds = (0,1)
     params, pcov = curve_fit(Flory_multi, logM, w, p0 = p0, bounds=bounds)
-    return (params, pcov) 
+    #  Calculate error and add mass for last Flory
+    errors = np.sqrt(np.diag(pcov))
+    if nb_Flory == 1:
+            params = np.append(1.0, params)
+            errors = np.append(0.0, errors)
+    else:
+        m_N = 1 - np.sum([params[0:nb_Flory]])
+        std_m_N = np.sum([errors[0:nb_Flory]])
+        params = np.insert(params, nb_Flory-1, m_N)
+        errors = np.insert(errors, nb_Flory-1, std_m_N)
+
+    return (params, errors) 
 
 def get_model_prediction(logM,nb_Flory,params) -> np.ndarray:
     if nb_Flory == 1 :
-        return Flory(logM,params[0]).reshape(1, -1)
+        return Flory(logM,params[1]).reshape(1, -1)
     elif nb_Flory>1: 
-        m_N = 1 - np.sum([params[0:nb_Flory]])
-        params = np.insert(params, nb_Flory-1, m_N)
         w_list = []
         for i in range(0,nb_Flory):
             w = params[i]*Flory(logM, params[nb_Flory+i])

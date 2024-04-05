@@ -9,19 +9,10 @@ class ParameterTableModel(QAbstractTableModel):
         self.parameters = []
         self.errors = []
 
-    def setParameters(self, parameters :list, errors : list, nb_Flory : int) -> None:
+    def setParameters(self, parameters : np.ndarray, errors : np.ndarray, nb_Flory : int) -> None:
         self.nb_Flory = nb_Flory
         self.parameters = parameters
         self.errors = errors
-        if self.nb_Flory == 1:
-            self.parameters = np.append(1.0, self.parameters)
-            self.errors = np.append(0.0, self.errors)
-        else:
-            m_N = 1 - np.sum([self.parameters[0:self.nb_Flory]])
-            std_m_N = np.sum([self.errors[0:self.nb_Flory]])
-            self.parameters = np.insert(self.parameters, self.nb_Flory-1, m_N)
-            self.errors = np.insert(self.errors, self.nb_Flory-1, std_m_N)
-        
         self.layoutChanged.emit()
 
     def resetData(self):
