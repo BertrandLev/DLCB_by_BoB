@@ -167,7 +167,7 @@ class FloryFitTab(QWidget):
             for i in range(0,w.shape[0]-1):
                 pen = pg.mkPen(color=colors[i], style=Qt.PenStyle.DashLine, width=1.5)
                 self.plot_GPC.plot(self.data_GPC.logM, w[i,:],pen=pen, name=f"Flory #{i+1}")
-        R2 = Flory_fit.r_squared(self.data_GPC.w, np.sum(w,axis=0))
+        R2 = Flory_fit.r_squared(self.data_GPC.w, w[-1,:])
         self.result_display.clear()
         self.result_display.append("Fit Result :")
         self.result_display.append(f"R² = {R2}")
