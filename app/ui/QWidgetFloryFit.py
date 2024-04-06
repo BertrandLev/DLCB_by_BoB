@@ -1,6 +1,7 @@
 import pyqtgraph as pg
 import numpy as np
 from openpyxl import Workbook
+from openpyxl.chart import ScatterChart, Reference, Series
 from models.fit_results_model import ParameterTableModel
 from utils.GPC_data import GPC
 from utils import Flory_fit
@@ -85,6 +86,8 @@ class FloryFitTab(QWidget):
         font.setPointSize(14)
         self.equation_label.setFont(font)
         self.result_display = QTextEdit()
+        font.setPointSize(12)
+        self.result_display.setFont(font)
         self.export_button = QPushButton("Export to Excel",)
         self.export_button.setFixedSize(120,40)
         self.export_button.clicked.connect(self.Export_to_Excel)
@@ -224,7 +227,17 @@ class FloryFitTab(QWidget):
                 for r, values in enumerate(data, start=2):
                     for c, value in enumerate(values, start=9):
                         ws.cell(row=r, column=c).value = value
-
+                # Affichage du graph
+                chart = ScatterChart()
+                chart.x_axis.title = "log(M)"
+                chart.y_axis.title = "W"
+                x_data = Reference(ws, min_col=9, min_row=2, max_row=1001)
+                for i in range(1,np.shape(data)[1]):
+                    y_data = Reference(ws, min_col=9+i, min_row=2, max_row=1001)
+                    serie = Series(y_data, x_data, title=titles[i])
+                    chart.series.append(serie)
+                ws.add_chart(chart, "A14")
+                # Sauvegarde du fichier
                 wb.save(file_path)
                 self.appendLogMessage("Export to excel finish with success.")
             except Exception as e:
