@@ -6,7 +6,7 @@ from scipy.optimize import curve_fit
 # Creation des fonctions Flory
 def Flory(logM,tau) -> np.ndarray:
     M = np.power(10,logM)
-    return 2.3026*tau**2*np.multiply(np.power(M,2),np.exp(-M*tau))
+    return 1/np.log10(np.e)*tau**2*np.multiply(np.power(M,2),np.exp(-M*tau))
 
 def fit_N_Flory(logM,w,nb_Flory) -> tuple:
     
