@@ -3,6 +3,8 @@ from app.utils.GPC_data import GPC
 import numpy as np
 import pandas as pd
 
+# pyinstaller --onefile mon_scripts.py 
+
 # Import du fichier
 # file_path = 'tests\GPCIR TOTAL-23-0259.xls'
 # file_path = 'tests\GPCIR TOTAL-23-0263.xls'
