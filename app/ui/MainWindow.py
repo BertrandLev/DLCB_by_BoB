@@ -5,7 +5,7 @@ from ui.TabWidgetSession import Session
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("SCB distribution by Bob simulation")
+        self.setWindowTitle("LCB distribution")
         self.setGeometry(100, 100, 1200, 900)
 
         # Central Widget
