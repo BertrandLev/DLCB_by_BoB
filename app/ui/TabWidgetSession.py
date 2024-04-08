@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (QTabWidget, QMainWindow)
 
 from ui.QWidgetFloryFit import FloryFitTab
+from ui.QWidgetBobSimu import BobSimuTab
 
 class Session(QTabWidget):
     """
@@ -12,5 +13,8 @@ class Session(QTabWidget):
     def __init__(self, parent: QMainWindow) -> None:
         super(Session,self).__init__(parent)
         self.FloryFitTab = FloryFitTab()
+        self.BobSimuTab = BobSimuTab()
         self.addTab(self.FloryFitTab,"Flory Fitting")
+        self.addTab(self.BobSimuTab,"Bob Simulation")
+
 

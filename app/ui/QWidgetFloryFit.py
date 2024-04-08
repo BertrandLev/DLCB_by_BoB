@@ -57,7 +57,7 @@ class FloryFitTab(QWidget):
         fit_layout.addWidget(self.fit_entry,0,1)
         fit_layout.setColumnStretch(0,1)
         # Add log widgets
-        log_box = QGroupBox("Log")
+        log_box = QGroupBox("Flory fit Log")
         log_layout = QVBoxLayout(log_box)
         self.log_display = QTextEdit()
         self.log_display.setReadOnly(True)

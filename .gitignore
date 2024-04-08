@@ -3,3 +3,4 @@ app/ui/__pycache__
 build
 dist
 main.spec
+tests/expt.xlsx
