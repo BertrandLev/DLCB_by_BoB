@@ -220,7 +220,7 @@ class FloryFitTab(QWidget):
                                     w.T), axis=1)
                 titles = ["Log M","W_exp","W_Flory_Fit"]
                 if nb_Flory>1:
-                    for i, element in enumerate([f"W_Flory_#{k}" for k in range(0,nb_Flory)]):
+                    for i, element in enumerate([f"W_Flory_#{k+1}" for k in range(0,nb_Flory)]):
                         titles.insert(2+i,element)
                 for i, title in enumerate(titles, start=9):
                     ws.cell(row=1, column=i).value = title

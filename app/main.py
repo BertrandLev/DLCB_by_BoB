@@ -1,10 +1,6 @@
 import sys
-import pandas
-import matplotlib
-import pyqtgraph
 from PyQt6.QtWidgets import QApplication
 from ui.MainWindow import MainWindow
-
 
 def main():
     app = QApplication(sys.argv)
