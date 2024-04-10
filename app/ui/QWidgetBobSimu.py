@@ -3,7 +3,52 @@ import numpy as np
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
-                             QTextEdit)
+                             QComboBox, QTextEdit)
+
+class Bob_chem_param(QGroupBox):
+    
+    def __init__(self) -> None:
+        super().__init__("Chemical Parameters")
+        layout = QGridLayout(self)
+        self.pol_nat_combo = QComboBox()
+        self.pol_nat_combo.addItem("PE")
+        self.pol_nat_combo.setToolTip("Select a type of polymer to fill in the fields below with standard values.")
+        self.pol_nat_combo.activated.connect(self.on_polymer_nature_change)
+        layout.addWidget(QLabel("Polymer :"),0,0,Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.pol_nat_combo,0,1)
+        self.M0_entry = QLineEdit()
+        layout.addWidget(QLabel("Mo ="),1,0,Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.M0_entry,1,1,Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(QLabel("g/mol"),1,2,Qt.AlignmentFlag.AlignLeft)
+        self.Ne_entry = QLineEdit()
+        layout.addWidget(QLabel("Ne ="),2,0,Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.Ne_entry,2,1,Qt.AlignmentFlag.AlignCenter)
+        self.rho_entry = QLineEdit()
+        layout.addWidget(QLabel("\u03c1 ="),3,0,Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.rho_entry,3,1,Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(QLabel("g/cc"),3,2,Qt.AlignmentFlag.AlignLeft)
+        self.tau_entry = QLineEdit()
+        layout.addWidget(QLabel("\u03c4e ="),4,0,Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.tau_entry,4,1,Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(QLabel("s"),4,2,Qt.AlignmentFlag.AlignLeft)
+        self.temp_entry = QLineEdit()
+        layout.addWidget(QLabel("T ="),5,0,Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.temp_entry,5,1,Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(QLabel("°K"),5,2,Qt.AlignmentFlag.AlignLeft)
+    
+    def on_polymer_nature_change(self,index) -> None:
+        # Set new value
+        print(f"poly change to {self.pol_nat_combo.itemText(index)}")
+
+    def get_param(self) -> dict:
+        parameters = {
+            'Mo':float(self.M0_entry.text()),
+            'Ne':int(self.Ne_entry.text()),
+            'rho':float(self.rho_entry.text()),
+            'tau':float(self.tau_entry.text()),
+            'T':float(self.temp_entry.text())
+        }
+        return parameters     
 
 class BobSimuTab(QWidget):
 
@@ -23,9 +68,16 @@ class BobSimuTab(QWidget):
         # Bob Simulation box
         bob_box = QGroupBox("Bob simulation imputs")
         bob_layout = QGridLayout(bob_box)
+        bob_chem_param = Bob_chem_param()
+        
+        bob_reset_button = QPushButton("Reset")
+        bob_reset_button.clicked.connect(self.reset_bob_param)
         bob_start_button = QPushButton("Start")
         bob_start_button.clicked.connect(self.start_bob_simu)
-        bob_layout.addWidget(bob_start_button,0,2)
+
+        bob_layout.addWidget(bob_chem_param,0,0,1,3)
+        bob_layout.addWidget(bob_reset_button,1,1)
+        bob_layout.addWidget(bob_start_button,1,2)
         # Log box
         log_box = QGroupBox("Simulation Log")
         log_layout = QVBoxLayout(log_box)
@@ -69,3 +121,6 @@ class BobSimuTab(QWidget):
         self.appendLogMessage("Simulation Start...")
         
         self.appendLogMessage("Simulation Finished!")
+
+    def reset_bob_param(self) -> None:
+        self.appendLogMessage("Parameters reset.")
