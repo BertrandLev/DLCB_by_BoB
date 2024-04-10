@@ -5,6 +5,7 @@ from openpyxl.chart import ScatterChart, Reference, Series
 from models.fit_results_model import ParameterTableModel
 from utils.GPC_data import GPC
 from utils import Flory_fit
+from utils.Log_box import Log_box
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
@@ -57,16 +58,11 @@ class FloryFitTab(QWidget):
         fit_layout.addWidget(self.fit_entry,0,1)
         fit_layout.setColumnStretch(0,1)
         # Add log widgets
-        log_box = QGroupBox("Flory fit Log")
-        log_layout = QVBoxLayout(log_box)
-        self.log_display = QTextEdit()
-        self.log_display.setReadOnly(True)
-        log_layout.addWidget(self.log_display,0)
-        self.appendLogMessage("Start of session...")
+        self.log = Log_box("Flory fit Log")
         # Left layout
         left_layout.addWidget(file_box,0)
         left_layout.addWidget(fit_box,1)
-        left_layout.addWidget(log_box,2)
+        left_layout.addWidget(self.log,2)
         left_layout.setStretch(1,0)
         left_layout.setStretch(2,1)
 
@@ -111,20 +107,14 @@ class FloryFitTab(QWidget):
                                pen={'color':(0, 0, 0),'width':1},
                                brush=(240, 240, 240, 150))
 
-        # Message de démarrage
-        self.appendLogMessage("Session ready. Select a GPC-ONE file to begin.")
-
-    def appendLogMessage(self, message:str) -> None:
-        self.log_display.append("> "+message)
-
-    def appendErrorMessage(self, message:str) -> None:
-        errorMessage = "<font color='red'>"+"Error: "+message+"</font>"
-        self.appendLogMessage(errorMessage)
+        # Message de démarrage        
+        self.log.appendLogMessage("Start of session...")
+        self.log.appendLogMessage("Session ready. Select a GPC-ONE file to begin.")
 
     def floryNumberChange(self, value):
         if value < 1:
             self.fit_entry.setValue(1)
-            self.appendErrorMessage("Number of Flory curve should be at least one.")
+            self.log.appendErrorMessage("Number of Flory curve should be at least one.")
         else:
             self.fitFlory()
 
@@ -133,7 +123,7 @@ class FloryFitTab(QWidget):
         filename, _ = QFileDialog.getOpenFileName(self, "Select File", "", "All Files (*)")
         # Display the selected file name
         if filename:
-            self.appendLogMessage(f"Load of file: {filename}")
+            self.log.appendLogMessage(f"Load of file: {filename}")
             self.file_entry.setText(filename)
             # Chargement du fichier
             self.data_GPC.import_file(filename)
@@ -148,15 +138,15 @@ class FloryFitTab(QWidget):
         w = self.data_GPC.w
         N = self.fit_entry.value()
         # Effectue le fit de la courbe expérimentale
-        self.appendLogMessage(f"Start of fitting with {N} Flory.")
+        self.log.appendLogMessage(f"Start of fitting with {N} Flory.")
         try:
             params, error = Flory_fit.fit_N_Flory(logM,w,N)
-            self.appendLogMessage("End of Fitting with success.")
+            self.log.appendLogMessage("End of Fitting with success.")
             self.param_model.setParameters(params, error, N)
             # Affiche la courbe
             self.displayFitFlory()
         except Exception as e:
-            self.appendErrorMessage(f"Fitting failure. Error : {e}")
+            self.log.appendErrorMessage(f"Fitting failure. Error : {e}")
 
     def displayFitFlory(self) -> None:
         # Reset l'affichage des courbes
@@ -239,6 +229,6 @@ class FloryFitTab(QWidget):
                 ws.add_chart(chart, "A14")
                 # Sauvegarde du fichier
                 wb.save(file_path)
-                self.appendLogMessage("Export to excel finish with success.")
+                self.log.appendLogMessage("Export to excel finish with success.")
             except Exception as e:
-                self.appendErrorMessage(f"Error while export to excel : {e}")
+                self.log.appendErrorMessage(f"Error while export to excel : {e}")

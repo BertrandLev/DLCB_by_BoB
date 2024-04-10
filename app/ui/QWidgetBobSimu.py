@@ -1,3 +1,4 @@
+from utils.Log_box import Log_box
 import pyqtgraph as pg
 import numpy as np
 from PyQt6.QtCore import Qt
@@ -7,8 +8,9 @@ from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPu
 
 class Bob_chem_param(QGroupBox):
     
-    def __init__(self) -> None:
+    def __init__(self, log : Log_box) -> None:
         super().__init__("Chemical Parameters")
+        self.log = log
         layout = QGridLayout(self)
         self.pol_nat_combo = QComboBox()
         self.pol_nat_combo.addItem("PE")
@@ -38,7 +40,7 @@ class Bob_chem_param(QGroupBox):
     
     def on_polymer_nature_change(self,index) -> None:
         # Set new value
-        print(f"poly change to {self.pol_nat_combo.itemText(index)}")
+        self.log.appendLogMessage(f"poly change to {self.pol_nat_combo.itemText(index)}")
 
     def get_param(self) -> dict:
         parameters = {
@@ -61,33 +63,26 @@ class BobSimuTab(QWidget):
         main_splitter = QSplitter()
         main_splitter.setOrientation(Qt.Orientation.Horizontal)
         main_layout.addWidget(main_splitter)
-
+        # Log box
+        self.log = Log_box("Simulation Log")
+        
         # Left Part
         left_part = QWidget(main_splitter)
         left_layout = QVBoxLayout(left_part)
         # Bob Simulation box
         bob_box = QGroupBox("Bob simulation imputs")
         bob_layout = QGridLayout(bob_box)
-        bob_chem_param = Bob_chem_param()
-        
+        bob_chem_param = Bob_chem_param(self.log)
         bob_reset_button = QPushButton("Reset")
         bob_reset_button.clicked.connect(self.reset_bob_param)
         bob_start_button = QPushButton("Start")
         bob_start_button.clicked.connect(self.start_bob_simu)
-
         bob_layout.addWidget(bob_chem_param,0,0,1,3)
         bob_layout.addWidget(bob_reset_button,1,1)
         bob_layout.addWidget(bob_start_button,1,2)
-        # Log box
-        log_box = QGroupBox("Simulation Log")
-        log_layout = QVBoxLayout(log_box)
-        self.log_display = QTextEdit()
-        self.log_display.setReadOnly(True)
-        log_layout.addWidget(self.log_display,0)
-        self.appendLogMessage("Start of session...")
         # Left layout
         left_layout.addWidget(bob_box)
-        left_layout.addWidget(log_box)
+        left_layout.addWidget(self.log)
         
         # Right Part
         #top
@@ -109,18 +104,13 @@ class BobSimuTab(QWidget):
         r_bot_part = QWidget(right_splitter)
         r_bot_layout = QVBoxLayout(r_bot_part)
 
-
-    def appendLogMessage(self, message:str) -> None:
-        self.log_display.append("> "+message)
-
-    def appendErrorMessage(self, message:str) -> None:
-        errorMessage = "<font color='red'>"+"Error: "+message+"</font>"
-        self.appendLogMessage(errorMessage)
+        # End of init
+        self.log.appendLogMessage("Start of Bob simulation session...")
 
     def start_bob_simu(self) -> None:
-        self.appendLogMessage("Simulation Start...")
+        self.log.appendLogMessage("Simulation Start...")
         
-        self.appendLogMessage("Simulation Finished!")
+        self.log.appendLogMessage("Simulation Finished!")
 
     def reset_bob_param(self) -> None:
-        self.appendLogMessage("Parameters reset.")
+        self.log.appendLogMessage("Parameters reset.")
