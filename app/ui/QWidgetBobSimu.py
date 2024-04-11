@@ -12,10 +12,6 @@ class Bob_chem_param(QGroupBox):
         super().__init__("Chemical Parameters")
         self.log = log
         layout = QGridLayout(self)
-        self.pol_nat_combo = QComboBox()
-        self.pol_nat_combo.addItem("PE")
-        self.pol_nat_combo.setToolTip("Select a type of polymer to fill in the fields below with standard values.")
-        self.pol_nat_combo.activated.connect(self.on_polymer_nature_change)
         layout.addWidget(QLabel("Polymer :"),0,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.pol_nat_combo,0,1)
         self.M0_entry = QLineEdit()
@@ -37,10 +33,6 @@ class Bob_chem_param(QGroupBox):
         layout.addWidget(QLabel("T ="),5,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.temp_entry,5,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("°K"),5,2,Qt.AlignmentFlag.AlignLeft)
-    
-    def on_polymer_nature_change(self,index) -> None:
-        # Set new value
-        self.log.appendLogMessage(f"poly change to {self.pol_nat_combo.itemText(index)}")
 
     def get_param(self) -> dict:
         parameters = {
