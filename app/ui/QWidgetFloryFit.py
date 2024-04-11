@@ -7,7 +7,7 @@ from utils.GPC_data import GPC
 from utils import Flory_fit
 from utils.Log_box import Log_box
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
+from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
                              QTextEdit)
 
