@@ -56,17 +56,20 @@ class Bob_componant(QGroupBox):
         self.log = log
         layout = QGridLayout(self)
         self.fraction = QLineEdit()
+        self.fraction.setFixedWidth(80)
         layout.addWidget(QLabel("Weight fraction :"), 0, 0)
-        layout.addWidget(self.fraction, 0, 1)
+        layout.addWidget(self.fraction, 0, 1, Qt.AlignmentFlag.AlignLeft)
         self.type = QComboBox()
         self.type.addItem("mPE")
+        self.type.setFixedWidth(150)
         self.type.activated.connect(self.on_type_change)
         layout.addWidget(QLabel("Type :"), 1, 0)
-        layout.addWidget(self.type, 1, 1)
+        layout.addWidget(self.type, 1, 1, Qt.AlignmentFlag.AlignLeft)
         self.param_table = QTableView()
-        layout.addWidget(self.param_table, 2, 0, 1, 2)
+        layout.addWidget(self.param_table, 2, 0, 1, 3)
         self.poly_model = mPE_model()
         self.param_table.setModel(self.poly_model)
+        layout.setColumnStretch(2,1)
         
     def on_type_change(self,index) -> None:
         self.log.appendLogMessage(f"Componant #{self.index} type change to {self.type.itemText(index)}")
@@ -104,8 +107,9 @@ class BobSimuTab(QWidget):
         self.bob_comp_layout = QGridLayout(self.bob_comp_box)
         bob_comp_Nb_value = QSpinBox()
         bob_comp_Nb_value.valueChanged.connect(self.on_comp_number_change)
+        bob_comp_Nb_value.setFixedWidth(70)
         self.bob_comp_layout.addWidget(QLabel("Number of componants :"),0,0,Qt.AlignmentFlag.AlignTop)
-        self.bob_comp_layout.addWidget(bob_comp_Nb_value,0,1,1,2,Qt.AlignmentFlag.AlignTop)
+        self.bob_comp_layout.addWidget(bob_comp_Nb_value,0,1,1,2,Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
         bob_comp_scrollArea.setWidget(self.bob_comp_box)
         bob_comp_scrollArea.setWidgetResizable(True)
         # Add start and reset button
@@ -161,3 +165,6 @@ class BobSimuTab(QWidget):
 
     def reset_bob_param(self) -> None:
         self.log.appendLogMessage("Parameters reset.")
+
+    def generate_input_file(self) -> bool:
+        pass
