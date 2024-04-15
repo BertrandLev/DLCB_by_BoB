@@ -1,10 +1,11 @@
 from utils.Log_box import Log_box
+from models.polymer_model import mPE_model
 import pyqtgraph as pg
 import numpy as np
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
-                             QComboBox, QTextEdit, QScrollArea)
+                             QComboBox, QTextEdit, QScrollArea, QHeaderView)
 
 class Bob_chem_param(QGroupBox):
     
@@ -57,13 +58,16 @@ class Bob_componant(QGroupBox):
         self.type.activated.connect(self.on_type_change)
         layout.addWidget(QLabel("Type :"), 1, 0)
         layout.addWidget(self.type, 1, 1)
-        self.param = QTableView()
-        layout.addWidget(self.param, 2, 0, 1, 2)
-
+        self.param_table = QTableView()
+        layout.addWidget(self.param_table, 2, 0, 1, 2)
+        self.poly_model = mPE_model()
+        self.param_table.setModel(self.poly_model)
+        
     def on_type_change(self,index) -> None:
         self.log.appendLogMessage(f"Componant #{self.index} type change to {self.type.itemText(index)}")
         if self.type.itemText(index) == "mPE":
-            pass
+            self.poly_model = mPE_model()
+            self.param_table.setModel(self.poly_model)
 
 
 class BobSimuTab(QWidget):
