@@ -14,21 +14,26 @@ class Bob_chem_param(QGroupBox):
         self.log = log
         layout = QGridLayout(self)
         self.M0_entry = QLineEdit()
+        self.M0_entry.setText("28.0")
         layout.addWidget(QLabel("Mo ="),0,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.M0_entry,0,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("g/mol"),0,2,Qt.AlignmentFlag.AlignLeft)
         self.Ne_entry = QLineEdit()
+        self.Ne_entry.setText("40")
         layout.addWidget(QLabel("Ne ="),1,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.Ne_entry,1,1,Qt.AlignmentFlag.AlignCenter)
         self.rho_entry = QLineEdit()
+        self.rho_entry.setText("0.760")
         layout.addWidget(QLabel("\u03c1 ="),2,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.rho_entry,2,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("g/cc"),2,2,Qt.AlignmentFlag.AlignLeft)
         self.tau_entry = QLineEdit()
+        self.tau_entry.setText("2.0e-7")
         layout.addWidget(QLabel("\u03c4e ="),3,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.tau_entry,3,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("s"),3,2,Qt.AlignmentFlag.AlignLeft)
         self.temp_entry = QLineEdit()
+        self.temp_entry.setText("463.0")
         layout.addWidget(QLabel("T ="),4,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.temp_entry,4,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("°K"),4,2,Qt.AlignmentFlag.AlignLeft)
@@ -81,15 +86,14 @@ class BobSimuTab(QWidget):
         main_splitter = QSplitter()
         main_splitter.setOrientation(Qt.Orientation.Horizontal)
         main_layout.addWidget(main_splitter)
-        # Log box
-        self.log = Log_box("Simulation Log")
-
         # Left Part
-        left_part = QWidget(main_splitter)
-        left_layout = QVBoxLayout(left_part)
+        left_splitter = QSplitter(main_splitter)
+        left_splitter.setOrientation(Qt.Orientation.Vertical)
         # Bob Simulation box
-        bob_box = QGroupBox("Bob simulation imputs")
+        bob_box = QGroupBox(title="Bob simulation imputs", parent=left_splitter)
         bob_layout = QGridLayout(bob_box)
+        # Log box
+        self.log = Log_box(title="Simulation Log", parent=left_splitter)
         bob_chem_param = Bob_chem_param(self.log)
         # Componants box
         self.comp_list = []
@@ -113,9 +117,6 @@ class BobSimuTab(QWidget):
         bob_layout.addWidget(bob_comp_scrollArea,1,0,1,3)
         bob_layout.addWidget(bob_reset_button,2,1)
         bob_layout.addWidget(bob_start_button,2,2)
-        # Left layout
-        left_layout.addWidget(bob_box)
-        left_layout.addWidget(self.log)
         
         # Right Part
         #top

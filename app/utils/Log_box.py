@@ -1,9 +1,10 @@
-from PyQt6.QtWidgets import (QVBoxLayout, QGroupBox, QTextEdit)
+from PyQt6.QtWidgets import (QVBoxLayout, QGroupBox, QTextEdit, QWidget)
+
 
 class Log_box(QGroupBox):
 
-    def __init__(self,title :str = None) -> None:
-        super().__init__(title=title)
+    def __init__(self,title :str = None, parent: QWidget = None) -> None:
+        super().__init__(title=title, parent=parent)
         layout = QVBoxLayout(self)
         self.display = QTextEdit()
         self.display.setReadOnly(True)
