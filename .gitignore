@@ -1,5 +1,6 @@
 venv
 app/ui/__pycache__
+app/data/Results
 build
 dist
 main.spec

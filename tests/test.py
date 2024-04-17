@@ -26,10 +26,13 @@ import os
 #         print("Une erreur est survenue lors du fit:",e)
 
 # Test de lancement de Bob
-Bob_folder = "app/data/"
-Bob_inputFile = "inputBob.dat"
-Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
+# Bob_folder = "app/data/"
+# Bob_inputFile = "inputBob.dat"
+# Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
 
-command = [Bob_exe,'-i', Bob_inputFile]
+# command = [Bob_exe,'-i', Bob_inputFile]
 
-subprocess.run(command, cwd = Bob_folder)
+# subprocess.run(command, cwd = Bob_folder)
+
+# Test deplacement de fichier
+

@@ -1,10 +1,11 @@
 from utils.Log_box import Log_box
 from models.polymer_model import mPE_model
+from datetime import datetime
 import pyqtgraph as pg
 import numpy as np
 import os
+import re
 import subprocess
-import time
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
@@ -169,24 +170,25 @@ class BobSimuTab(QWidget):
             self.bob_comp_layout.addWidget(self.comp_list[i], 1+i, 0, 1, 3, Qt.AlignmentFlag.AlignTop)
             self.comp_list[i].setStyleSheet("background-color: LightGray;")
 
+    def reset_bob_param(self) -> None:
+        self.log.appendLogMessage("Parameters reset.")
+        self.treat_result()
+
     def start_bob_simu(self) -> None:
         self.log.appendLogMessage("Simulation Start...")
         try:
             self.log.appendLogMessage("Input File generation...")
             self.generate_input_file()
-            Bob_folder = "app/data/Bob"
-            Bob_inputFile = "inputBob.dat"
-            Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
-            command = [Bob_exe,'-i', Bob_inputFile]
-            self.log.appendLogMessage("Launch of bob2P5.exe...")
             QApplication.processEvents()
-            subprocess.run(command, cwd = Bob_folder)
-            self.log.appendLogMessage("Simulation succeded!")
+            self.log.appendLogMessage("Launch of bob2P5.exe...")
+            self.launch_Bob()
+            QApplication.processEvents()
+            self.log.appendLogMessage("Treatment of the results...")
+            self.treat_results_files()
+            QApplication.processEvents()
+            self.log.appendLogMessage("Simulation finished.")
         except Exception as e:
             self.log.appendErrorMessage("Simulation failed. Error :",e)
-
-    def reset_bob_param(self) -> None:
-        self.log.appendLogMessage("Parameters reset.")
 
     def generate_input_file(self) -> bool:
         output_file = os.path.join("app/data/Bob","inputBob.dat")
@@ -208,4 +210,42 @@ class BobSimuTab(QWidget):
         except Exception as e:
             self.log.appendErrorMessage("Fail to write inputBob.dat file. Error:",e)
             return False
-        
+
+    def launch_Bob(self) -> bool:
+        Bob_folder = "app/data/Bob"
+        Bob_inputFile = "inputBob.dat"
+        try:
+            Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
+            command = [Bob_exe,'-i', Bob_inputFile]
+            subprocess.run(command, cwd = Bob_folder)
+            return True
+        except Exception as e:
+            self.log.appendErrorMessage("An error append while launching Bob. Error :",e)
+            return False
+    
+    def treat_results_files(self) -> bool:
+        Bob_folder = os.path.abspath("app/data/Bob")
+        result_folder = os.path.abspath("app/data/Results")
+        today_date = datetime.today().date().strftime("%Y%m%d")
+         # Creation of output folder name
+        pattern = rf"{today_date}_\d{{3}}$"
+        simu_num = 1
+        try:
+            for item in os.listdir(result_folder):
+                if os.path.isdir(os.path.join(result_folder,item)):
+                    if bool(re.match(pattern, item)):
+                        num_tmp = int(item[-3:])+1
+                        simu_num = num_tmp if num_tmp > simu_num else simu_num
+            output_folder = os.path.join(result_folder, today_date + "_" + "{:03d}".format(simu_num))
+            os.makedirs(output_folder)
+        except Exception as e:
+            self.log.appendErrorMessage("Error while creating the result folder. Error :", e)
+        # Transfering file to output folder
+        files = ("gt.dat","gtp.dat","info.txt","maxwell.dat","polyconf.dat","supertube.dat")
+        try:
+            for file in files:
+                source_file = os.path.join(Bob_folder,file)
+                if os.path.exists(source_file):
+                    os.rename(source_file, os.path.join(output_folder,file))
+        except Exception as e:
+            self.log.appendErrorMessage("Error while moving results files. Error :", e)
