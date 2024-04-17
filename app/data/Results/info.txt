@@ -1,0 +1,44 @@
+Found bob.rc 
+FreqMax = 1.000000e+003
+End of rc file 
+
+
+ parameters after reading inputs: 
+alpha  = 1.000000e+000 
+R_L  = 1.000000e-008 
+p^2  = 2.500000e-002 
+Mass of monomer  = 2.800000e+001 
+N_e  = 4.000000e+001 
+Temperature (input) = 4.631500e+002 
+G_0 = 2.090461e+006 
+tau_e = 2.000000e-007 sec 
+ 
+compound arm prefactor includes effective armlen.
+Reptation in thin tube.
+
+ End of input parameters 
+Selected metallocene PE 
+b_m = 2.000000e-001 
+M_n = 8.333333e+003 
+lambda = 3.360000e-001 
+P_B = 1.428571e-001 
+M_w = 2.000000e+004 
+Propagation probability = 9.959680e-001 
+Monomer addition probability = 9.993253e-001 
+created 2000 metallocene-PE polymers. 
+component  0 : Total mass = 1.484825e+004 
+maximum priority = 4 
+ maximum seniority = 4 
+Branching topology of the polymers
+Number of branches per molecule = 1.955000e-001 
+number of linear molecules = 1719 
+mass fraction of linear molecules = 6.198390e-001 
+number of star molecules = 215 
+mass fraction of star molecules = 2.361036e-001 
+number of comb molecules = 64 
+mass fraction of comb molecules = 1.334989e-001 
+number of branch-on-branch molecules = 2 
+mass fraction of branch-on-branch molecules = 1.055848e-002 
+Following relaxation to calculate linear rheology
+zero-shear viscosity = 6.450529e+002 
+|complex-viscosity|(1.0e-6) = 6.450584e+002 

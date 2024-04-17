@@ -47,7 +47,10 @@ class mPE_model(Poly_model):
             else:
                 return "{:d}".format(self.parameters[col])
         if role == Qt.ItemDataRole.EditRole:
-            return self.parameters[col]
+            if col == 3:
+                return float(self.parameters[col])
+            else:
+                return self.parameters[col]
         if role == Qt.ItemDataRole.BackgroundRole:
             return Qt.GlobalColor.white
          
@@ -56,7 +59,13 @@ class mPE_model(Poly_model):
     def setData(self, index: QModelIndex, value, role: int = Qt.ItemDataRole.EditRole) -> bool:
         if role == Qt.ItemDataRole.EditRole:
             col = index.column()
-            self.parameters[col] = value
+            if col == 3:
+                try:
+                    self.parameters[col] = float(value)
+                except ValueError:
+                    return False
+            else:
+                self.parameters[col] = value            
             self.dataChanged.emit(index,index)
             return True
         

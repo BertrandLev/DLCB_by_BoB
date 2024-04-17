@@ -3,6 +3,7 @@ from models.polymer_model import mPE_model
 import pyqtgraph as pg
 import numpy as np
 import os
+import subprocess
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
@@ -48,6 +49,7 @@ class Bob_chem_param(QGroupBox):
             'T':float(self.temp_entry.text())
         }
         return parameters     
+
 
 class Bob_componant(QGroupBox):
 
@@ -168,14 +170,22 @@ class BobSimuTab(QWidget):
 
     def start_bob_simu(self) -> None:
         self.log.appendLogMessage("Simulation Start...")
-        self.generate_input_file()
-        self.log.appendLogMessage("Simulation Finished!")
+        try:
+            self.generate_input_file()
+            Bob_folder = "app/data/Bob"
+            Bob_inputFile = "inputBob.dat"
+            Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
+            command = [Bob_exe,'-i', Bob_inputFile]
+            subprocess.run(command, cwd = Bob_folder)
+            self.log.appendLogMessage("Simulation succeded!")
+        except Exception as e:
+            self.log.appendErrorMessage("Simulation failed. Error :",e)
 
     def reset_bob_param(self) -> None:
         self.log.appendLogMessage("Parameters reset.")
 
     def generate_input_file(self) -> bool:
-        output_file = os.path.join("app/data","inputBob.dat")
+        output_file = os.path.join("app/data/Bob","inputBob.dat")
         chem_param = self.bob_chem_param.get_param()
         nb_comp = self.bob_comp_Nb_value.value()
         try:
