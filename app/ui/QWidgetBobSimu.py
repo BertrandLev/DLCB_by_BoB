@@ -4,10 +4,11 @@ import pyqtgraph as pg
 import numpy as np
 import os
 import subprocess
+import time
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
-                             QComboBox, QTextEdit, QScrollArea, QHeaderView)
+                             QComboBox, QTextEdit, QScrollArea, QApplication)
 
 class Bob_chem_param(QGroupBox):
     
@@ -171,11 +172,14 @@ class BobSimuTab(QWidget):
     def start_bob_simu(self) -> None:
         self.log.appendLogMessage("Simulation Start...")
         try:
+            self.log.appendLogMessage("Input File generation...")
             self.generate_input_file()
             Bob_folder = "app/data/Bob"
             Bob_inputFile = "inputBob.dat"
             Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
             command = [Bob_exe,'-i', Bob_inputFile]
+            self.log.appendLogMessage("Launch of bob2P5.exe...")
+            QApplication.processEvents()
             subprocess.run(command, cwd = Bob_folder)
             self.log.appendLogMessage("Simulation succeded!")
         except Exception as e:
