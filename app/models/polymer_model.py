@@ -21,6 +21,10 @@ class Poly_model(QAbstractTableModel):
     def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...):
         return super().headerData(section, orientation, role)
     
+    def get_params(self) -> str:
+        str_parameters = f""
+        return str_parameters
+    
 
 class mPE_model(Poly_model):
 
@@ -68,3 +72,7 @@ class mPE_model(Poly_model):
     
     def flags(self, index):
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled
+    
+    def get_params(self) -> str:
+        str_parameters = f"{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {self.parameters[3]}\n"
+        return str_parameters

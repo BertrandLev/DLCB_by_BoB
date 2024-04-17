@@ -2,6 +2,7 @@ from utils.Log_box import Log_box
 from models.polymer_model import mPE_model
 import pyqtgraph as pg
 import numpy as np
+import os
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
@@ -33,7 +34,7 @@ class Bob_chem_param(QGroupBox):
         layout.addWidget(self.tau_entry,3,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("s"),3,2,Qt.AlignmentFlag.AlignLeft)
         self.temp_entry = QLineEdit()
-        self.temp_entry.setText("463.0")
+        self.temp_entry.setText("463.15")
         layout.addWidget(QLabel("T ="),4,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.temp_entry,4,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("°K"),4,2,Qt.AlignmentFlag.AlignLeft)
@@ -77,6 +78,13 @@ class Bob_componant(QGroupBox):
             self.poly_model = mPE_model()
             self.param_table.setModel(self.poly_model)
 
+    def get_comp_param(self) -> dict:
+        parameters = {
+            'f':self.fraction.text(),
+            'params':self.poly_model.get_params()
+        }
+        return parameters
+
 
 class BobSimuTab(QWidget):
 
@@ -97,7 +105,7 @@ class BobSimuTab(QWidget):
         bob_layout = QGridLayout(bob_box)
         # Log box
         self.log = Log_box(title="Simulation Log", parent=left_splitter)
-        bob_chem_param = Bob_chem_param(self.log)
+        self.bob_chem_param = Bob_chem_param(self.log)
         # Componants box
         self.comp_list = []
         bob_comp_scrollArea = QScrollArea()
@@ -105,11 +113,11 @@ class BobSimuTab(QWidget):
         bob_comp_scrollArea.setStyleSheet("background-color: transparent;")
         self.bob_comp_box = QGroupBox("Componants")
         self.bob_comp_layout = QGridLayout(self.bob_comp_box)
-        bob_comp_Nb_value = QSpinBox()
-        bob_comp_Nb_value.valueChanged.connect(self.on_comp_number_change)
-        bob_comp_Nb_value.setFixedWidth(70)
+        self.bob_comp_Nb_value = QSpinBox()
+        self.bob_comp_Nb_value.valueChanged.connect(self.on_comp_number_change)
+        self.bob_comp_Nb_value.setFixedWidth(70)
         self.bob_comp_layout.addWidget(QLabel("Number of componants :"),0,0,Qt.AlignmentFlag.AlignTop)
-        self.bob_comp_layout.addWidget(bob_comp_Nb_value,0,1,1,2,Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
+        self.bob_comp_layout.addWidget(self.bob_comp_Nb_value,0,1,1,2,Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
         bob_comp_scrollArea.setWidget(self.bob_comp_box)
         bob_comp_scrollArea.setWidgetResizable(True)
         # Add start and reset button
@@ -117,7 +125,7 @@ class BobSimuTab(QWidget):
         bob_reset_button.clicked.connect(self.reset_bob_param)
         bob_start_button = QPushButton("Start")
         bob_start_button.clicked.connect(self.start_bob_simu)
-        bob_layout.addWidget(bob_chem_param,0,0,1,3)
+        bob_layout.addWidget(self.bob_chem_param,0,0,1,3)
         bob_layout.addWidget(bob_comp_scrollArea,1,0,1,3)
         bob_layout.addWidget(bob_reset_button,2,1)
         bob_layout.addWidget(bob_start_button,2,2)
@@ -160,11 +168,30 @@ class BobSimuTab(QWidget):
 
     def start_bob_simu(self) -> None:
         self.log.appendLogMessage("Simulation Start...")
-        
+        self.generate_input_file()
         self.log.appendLogMessage("Simulation Finished!")
 
     def reset_bob_param(self) -> None:
         self.log.appendLogMessage("Parameters reset.")
 
     def generate_input_file(self) -> bool:
-        pass
+        output_file = os.path.join("app/data","inputBob.dat")
+        chem_param = self.bob_chem_param.get_param()
+        nb_comp = self.bob_comp_Nb_value.value()
+        try:
+            with open(output_file, "w") as file:
+                file.write("50000 500000\n")
+                file.write("1.0\n")
+                file.write("1\n")
+                file.write(f"{chem_param['Mo']} {chem_param['Ne']} {chem_param['rho']}\n")
+                file.write(f"{chem_param['tau']} {chem_param['T']}\n")
+                file.write(f"{str(nb_comp)}\n")
+                for i in range(0,nb_comp):
+                    bob_comp_params = self.comp_list[i].get_comp_param()
+                    file.write(bob_comp_params['f']+"\n")
+                    file.write(bob_comp_params['params'])
+            return True
+        except Exception as e:
+            self.log.appendErrorMessage("Fail to write inputBob.dat file. Error:",e)
+            return False
+        
