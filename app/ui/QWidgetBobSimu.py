@@ -1,4 +1,5 @@
 from utils.Log_box import Log_box
+from utils.Plot_box import Plot_box
 from models.polymer_model import mPE_model
 from datetime import datetime
 import pyqtgraph as pg
@@ -135,12 +136,12 @@ class BobSimuTab(QWidget):
         bob_layout.addWidget(bob_start_button,2,2)
         
         # Right Part
-        #top
         right_splitter = QSplitter(main_splitter)
         right_splitter.setOrientation(Qt.Orientation.Vertical)
+        #top
         r_top_part = QWidget(right_splitter)
         r_top_layout = QVBoxLayout(r_top_part)
-        self.plot_GPC = pg.PlotWidget()
+        self.plot_GPC = Plot_box()
         RDA_box = QGroupBox("RDA File")
         RDA_layout = QGridLayout(RDA_box)
         self.RDA_entry = QLineEdit("")

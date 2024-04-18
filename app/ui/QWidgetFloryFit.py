@@ -6,6 +6,7 @@ from models.fit_results_model import ParameterTableModel
 from utils.GPC_data import GPC
 from utils import Flory_fit
 from utils.Log_box import Log_box
+from utils.Plot_box import Plot_box
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, 
                              QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
@@ -71,7 +72,7 @@ class FloryFitTab(QWidget):
         right_splitter.setOrientation(Qt.Orientation.Vertical)
         r_top_part = QWidget(right_splitter)
         r_top_layout = QVBoxLayout(r_top_part)
-        self.plot_GPC = pg.PlotWidget()
+        self.plot_GPC = Plot_box(xlabel='Log M', ylabel='w')
         r_top_layout.addWidget(self.plot_GPC)
         r_bot_part = QWidget(right_splitter)
         r_bot_layout = QGridLayout(r_bot_part)
@@ -94,19 +95,6 @@ class FloryFitTab(QWidget):
         r_bot_layout.addWidget(self.result_display,1,2,Qt.AlignmentFlag.AlignRight)
         r_bot_layout.addWidget(self.export_button,2,2,Qt.AlignmentFlag.AlignRight)
         
-        # Customize graph and set initial value
-        self.plot_GPC.setBackground('w')
-        self.plot_GPC.showGrid(x=True, y=True)
-        # self.plot_GPC.setMouseEnabled(False)
-        self.plot_GPC.getPlotItem().getViewBox().setBorder(pg.mkPen(color=(0,0,0),width=1))
-        self.plot_GPC.setLabel('left',
-                               '<span style="color: red; font-size: 18px">w</span>')
-        self.plot_GPC.setLabel('bottom',
-                               '<span style="color: red; font-size: 18px">Log M</span>')
-        self.plot_GPC.addLegend(labelTextSize='10pt', labelTextColor=(0, 0, 0),
-                               pen={'color':(0, 0, 0),'width':1},
-                               brush=(240, 240, 240, 150))
-
         # Message de démarrage        
         self.log.appendLogMessage("Start of session...")
         self.log.appendLogMessage("Session ready. Select a GPC-ONE file to begin.")
