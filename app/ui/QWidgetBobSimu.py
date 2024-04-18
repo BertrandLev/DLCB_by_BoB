@@ -4,6 +4,7 @@ from models.polymer_model import mPE_model
 from datetime import datetime
 import pyqtgraph as pg
 import numpy as np
+import pandas as pd
 import os
 import re
 import subprocess
@@ -141,7 +142,8 @@ class BobSimuTab(QWidget):
         #top
         r_top_part = QWidget(right_splitter)
         r_top_layout = QVBoxLayout(r_top_part)
-        self.plot_GPC = Plot_box()
+        self.plot_GPC = Plot_box(xlabel="w (s-1)", ylabel="G' | G''")
+        self.plot_GPC.setLogMode(x=True, y=True)
         RDA_box = QGroupBox("RDA File")
         RDA_layout = QGridLayout(RDA_box)
         self.RDA_entry = QLineEdit("")
@@ -173,7 +175,9 @@ class BobSimuTab(QWidget):
 
     def reset_bob_param(self) -> None:
         self.log.appendLogMessage("Parameters reset.")
-        self.treat_result()
+        result_folder = os.path.abspath("app/data/Results")
+        file_name = "20240418_001/gtp.dat"
+        self.plot_result(os.path.join(result_folder,file_name))
 
     def start_bob_simu(self) -> None:
         self.log.appendLogMessage("Simulation Start...")
@@ -225,6 +229,7 @@ class BobSimuTab(QWidget):
             return False
     
     def treat_results_files(self) -> bool:
+
         Bob_folder = os.path.abspath("app/data/Bob")
         result_folder = os.path.abspath("app/data/Results")
         today_date = datetime.today().date().strftime("%Y%m%d")
@@ -250,3 +255,16 @@ class BobSimuTab(QWidget):
                     os.rename(source_file, os.path.join(output_folder,file))
         except Exception as e:
             self.log.appendErrorMessage("Error while moving results files. Error :", e)
+
+    def plot_result(self, file_path) -> bool:
+        try:
+            data = pd.read_csv(file_path, delim_whitespace=True, dtype=float,
+                               names=("w", "Gp", "G2p"), index_col=False)
+            self.plot_GPC.plot(data["w"].values, data["Gp"].values, 
+                               pen= pg.mkPen(color=(0, 0, 255), width=1), name="G'")
+            self.plot_GPC.plot(data["w"].values, data["G2p"].values, 
+                               pen= pg.mkPen(color=(0, 255, 0), width=1), name="G''")
+        
+        except Exception as e:
+            print(f"An error occur while reading the data file {file_path}. Error : ", e)
+
