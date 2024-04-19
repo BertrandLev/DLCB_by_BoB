@@ -1,6 +1,6 @@
 from utils.Log_box import Log_box
 from utils.Plot_box import Plot_box
-from models.polymer_model import mPE_model
+from models.polymer_model import mPE_model, mPE_bm_var_model
 from datetime import datetime
 import pyqtgraph as pg
 import numpy as np
@@ -68,6 +68,7 @@ class Bob_componant(QGroupBox):
         layout.addWidget(self.fraction, 0, 1, Qt.AlignmentFlag.AlignLeft)
         self.type = QComboBox()
         self.type.addItem("mPE")
+        self.type.addItem("mPE_bm_variable")
         self.type.setFixedWidth(150)
         self.type.activated.connect(self.on_type_change)
         layout.addWidget(QLabel("Type :"), 1, 0)
@@ -82,13 +83,13 @@ class Bob_componant(QGroupBox):
         self.log.appendLogMessage(f"Componant #{self.index} type change to {self.type.itemText(index)}")
         if self.type.itemText(index) == "mPE":
             self.poly_model = mPE_model()
-            self.param_table.setModel(self.poly_model)
+        elif self.type.itemText(index) == 'mPE_bm_variable':
+            self.poly_model = mPE_bm_var_model()
+        self.param_table.setModel(self.poly_model)
 
     def get_comp_param(self) -> dict:
-        parameters = {
-            'f':self.fraction.text(),
-            'params':self.poly_model.get_params()
-        }
+        parameters = self.poly_model.get_params()
+        parameters['f'] = self.fraction.text()
         return parameters
 
 
