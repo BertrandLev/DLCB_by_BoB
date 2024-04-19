@@ -1,17 +1,15 @@
 from utils.Log_box import Log_box
 from utils.Plot_box import Plot_box
+from utils.Bob_simulation import Bob_simulation
 from models.polymer_model import mPE_model, mPE_bm_var_model
-from datetime import datetime
 import pyqtgraph as pg
 import numpy as np
 import pandas as pd
 import os
-import re
-import subprocess
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
-                             QLineEdit, QSplitter, QTableView, QFileDialog, QGroupBox, QSpinBox,
-                             QComboBox, QTextEdit, QScrollArea, QApplication)
+                             QLineEdit, QSplitter, QTableView, QGroupBox, QSpinBox,
+                             QComboBox, QScrollArea)
 
 class Bob_chem_param(QGroupBox):
     
@@ -114,7 +112,7 @@ class BobSimuTab(QWidget):
         self.log = Log_box(title="Simulation Log", parent=left_splitter)
         self.bob_chem_param = Bob_chem_param(self.log)
         # Componants box
-        self.comp_list = []
+        self.bob_comp_list = []
         bob_comp_scrollArea = QScrollArea()
         bob_comp_scrollArea.setMinimumHeight(300)
         bob_comp_scrollArea.setStyleSheet("background-color: transparent;")
@@ -164,15 +162,15 @@ class BobSimuTab(QWidget):
     def on_comp_number_change(self, value) -> None:
         self.log.appendLogMessage(f"Change of componant number to {value}")
         # Suppression des anciens composants
-        if self.comp_list :
-            for componant in self.comp_list:
+        if self.bob_comp_list :
+            for componant in self.bob_comp_list:
                 componant.deleteLater()
-            self.comp_list.clear()
+            self.bob_comp_list.clear()
         # Ajout des composants
         for i in range(value):
-            self.comp_list.append(Bob_componant(self.log, i))
-            self.bob_comp_layout.addWidget(self.comp_list[i], 1+i, 0, 1, 3, Qt.AlignmentFlag.AlignTop)
-            self.comp_list[i].setStyleSheet("background-color: LightGray;")
+            self.bob_comp_list.append(Bob_componant(self.log, i))
+            self.bob_comp_layout.addWidget(self.bob_comp_list[i], 1+i, 0, 1, 3, Qt.AlignmentFlag.AlignTop)
+            self.bob_comp_list[i].setStyleSheet("background-color: LightGray;")
 
     def reset_bob_param(self) -> None:
         self.log.appendLogMessage("Parameters reset.")
@@ -181,81 +179,14 @@ class BobSimuTab(QWidget):
         self.plot_result(os.path.join(result_folder,file_name))
 
     def start_bob_simu(self) -> None:
-        self.log.appendLogMessage("Simulation Start...")
         try:
-            self.log.appendLogMessage("Input File generation...")
-            self.generate_input_file()
-            QApplication.processEvents()
-            self.log.appendLogMessage("Launch of bob2P5.exe...")
-            self.launch_Bob()
-            QApplication.processEvents()
-            self.log.appendLogMessage("Treatment of the results...")
-            self.treat_results_files()
-            QApplication.processEvents()
-            self.log.appendLogMessage("Simulation finished.")
+            Bob = Bob_simulation(log = self.log, 
+                                 chemical_params= self.bob_chem_param.get_param(),
+                                 componant_count= int(self.bob_comp_Nb_value.text()),
+                                 componant_list= self.bob_comp_list)
+            Bob.start_simulation()
         except Exception as e:
             self.log.appendErrorMessage("Simulation failed. Error :",e)
-
-    def generate_input_file(self) -> bool:
-        output_file = os.path.join("app/data/Bob","inputBob.dat")
-        chem_param = self.bob_chem_param.get_param()
-        nb_comp = self.bob_comp_Nb_value.value()
-        try:
-            with open(output_file, "w") as file:
-                file.write("50000 500000\n")
-                file.write("1.0\n")
-                file.write("1\n")
-                file.write(f"{chem_param['Mo']} {chem_param['Ne']} {chem_param['rho']}\n")
-                file.write(f"{chem_param['tau']} {chem_param['T']}\n")
-                file.write(f"{str(nb_comp)}\n")
-                for i in range(0,nb_comp):
-                    bob_comp_params = self.comp_list[i].get_comp_param()
-                    file.write(bob_comp_params['f']+"\n")
-                    file.write(bob_comp_params['params'])
-            return True
-        except Exception as e:
-            self.log.appendErrorMessage("Fail to write inputBob.dat file. Error:",e)
-            return False
-
-    def launch_Bob(self) -> bool:
-        Bob_folder = "app/data/Bob"
-        Bob_inputFile = "inputBob.dat"
-        try:
-            Bob_exe = os.path.join(Bob_folder,"bob2P5.exe")
-            command = [Bob_exe,'-i', Bob_inputFile]
-            subprocess.run(command, cwd = Bob_folder)
-            return True
-        except Exception as e:
-            self.log.appendErrorMessage("An error append while launching Bob. Error :",e)
-            return False
-    
-    def treat_results_files(self) -> bool:
-
-        Bob_folder = os.path.abspath("app/data/Bob")
-        result_folder = os.path.abspath("app/data/Results")
-        today_date = datetime.today().date().strftime("%Y%m%d")
-         # Creation of output folder name
-        pattern = rf"{today_date}_\d{{3}}$"
-        simu_num = 1
-        try:
-            for item in os.listdir(result_folder):
-                if os.path.isdir(os.path.join(result_folder,item)):
-                    if bool(re.match(pattern, item)):
-                        num_tmp = int(item[-3:])+1
-                        simu_num = num_tmp if num_tmp > simu_num else simu_num
-            output_folder = os.path.join(result_folder, today_date + "_" + "{:03d}".format(simu_num))
-            os.makedirs(output_folder)
-        except Exception as e:
-            self.log.appendErrorMessage("Error while creating the result folder. Error :", e)
-        # Transfering file to output folder
-        files = ("gt.dat","gtp.dat","info.txt","maxwell.dat","polyconf.dat","supertube.dat")
-        try:
-            for file in files:
-                source_file = os.path.join(Bob_folder,file)
-                if os.path.exists(source_file):
-                    os.rename(source_file, os.path.join(output_folder,file))
-        except Exception as e:
-            self.log.appendErrorMessage("Error while moving results files. Error :", e)
 
     def plot_result(self, file_path) -> bool:
         try:
