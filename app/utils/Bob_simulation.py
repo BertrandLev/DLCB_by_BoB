@@ -16,7 +16,6 @@ class Bob_simulation():
         self.componant_list = componant_list
         if self.componant_list:
             self.componant_count = len(self.componant_list)
-            self.set_componant_iteration()
 
     def set_chemical_params(self, value:dict):
         if value:
@@ -31,25 +30,40 @@ class Bob_simulation():
         else:
             raise ValueError("Fail to set componant list")
 
-    def set_componant_iteration(self):
-        self.componant_iteration = []
-        for componant in self.componant_list:
-            params = componant.get_comp_param()
-
-
     def start_simulation(self):
+        
+        def nested_iteration(iterators_list):
+            # Base case: if there are no more iterators, yield an empty tuple
+            if not iterators_list:
+                yield ()
+            else:
+                # Get the first iterator in the list
+                current_iterator = iterators_list[0]
+                
+                # Recursively iterate over the remaining iterators
+                for nested_result in nested_iteration(iterators_list[1:]):
+                    print(nested_result)
+                    # Iterate over the elements of the current iterator
+                    for item in current_iterator:
+                        print(item)
+                        # Yield the combination of the current element and the nested result
+                        yield (item,) + nested_result
+
         self.log.appendLogMessage("Simulation Start...")
+        iterators = [item.poly_model.iterate_model() for item in self.componant_list]
         try:
-            self.log.appendLogMessage("Input File generation...")
-            self.generate_input_file()
-            QApplication.processEvents()
-            self.log.appendLogMessage("Launch of bob2P5.exe...")
-            self.launch_application()
-            QApplication.processEvents()
-            self.log.appendLogMessage("Treatment of the results...")
-            self.files_post_treatment()
-            QApplication.processEvents()
-            self.log.appendLogMessage("Simulation finished.")
+            for models_params in nested_iteration(iterators):
+                pass# self.log.appendLogMessage("Input File generation...")
+                # print(models_params)
+                # self.generate_input_file()
+                # QApplication.processEvents()
+                # self.log.appendLogMessage("Launch of bob2P5.exe...")
+                # self.launch_application()
+                # QApplication.processEvents()
+                # self.log.appendLogMessage("Treatment of the results...")
+                # self.files_post_treatment()
+                # QApplication.processEvents()
+                # self.log.appendLogMessage("Simulation finished.")
         except Exception:
             raise
 
