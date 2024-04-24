@@ -182,11 +182,10 @@ class BobSimuTab(QWidget):
         try:
             Bob = Bob_simulation(log = self.log, 
                                  chemical_params= self.bob_chem_param.get_param(),
-                                 componant_count= int(self.bob_comp_Nb_value.text()),
                                  componant_list= self.bob_comp_list)
             Bob.start_simulation()
         except Exception as e:
-            self.log.appendErrorMessage("Simulation failed. Error :",e)
+            self.log.appendErrorMessage(f"Simulation failed. {type(e).__name__} : {e}")
 
     def plot_result(self, file_path) -> bool:
         try:

@@ -36,3 +36,25 @@ import os
 
 # Test deplacement de fichier
 
+
+def nested_iteration(iterators_list):
+    # Base case: if there are no more iterators, yield an empty tuple
+    if not iterators_list:
+        yield ()
+    else:
+        # Get the first iterator in the list
+        current_iterator = iterators_list[0]
+        
+        # Recursively iterate over the remaining iterators
+        for nested_result in nested_iteration(iterators_list[1:]):
+            # Iterate over the elements of the current iterator
+            for item in current_iterator:
+                # Yield the combination of the current element and the nested result
+                yield (item,) + nested_result
+
+# Suppose you have a list of iterators
+iterators = [iter(range(3)), iter(range(3, 6)), iter(range(6, 9))]
+
+# Use recursion to perform nested iteration
+for result in nested_iteration(iterators):
+    print(result)
