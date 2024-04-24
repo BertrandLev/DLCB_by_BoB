@@ -33,6 +33,8 @@ class Poly_model(QAbstractTableModel):
     def get_params(self) -> dict:
         return dict(zip(self.titles, self.parameters))
     
+    def iterate_model(self):
+        yield None
 
 class mPE_model(Poly_model):
 
@@ -76,6 +78,10 @@ class mPE_model(Poly_model):
         
         return False
     
+    def iterate_model(self):
+        input_str = f"{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {self.parameters[3]}"
+        yield input_str
+    
 class mPE_bm_var_model(Poly_model):
 
     def __init__(self) -> None:
@@ -117,3 +123,11 @@ class mPE_bm_var_model(Poly_model):
             return True
         
         return False
+    
+    def iterate_model(self):
+        bm_values = np.linspace(start=self.parameters[3],
+                                stop=self.parameters[4],
+                                num=self.parameters[5])
+        for bm in bm_values:
+            input_str = f"{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {bm}"
+            yield input_str

@@ -1,6 +1,5 @@
 from datetime import datetime
 from utils.Log_box import Log_box
-from ui.QWidgetBobSimu import Bob_componant
 from PyQt6.QtWidgets import QApplication
 import subprocess
 import os
@@ -8,7 +7,7 @@ import re
 
 class Bob_simulation():
 
-    def __init__(self, log:Log_box, chemical_params:dict = {}, componant_list:list[Bob_componant] = []) -> None:
+    def __init__(self, log:Log_box, chemical_params:dict = {}, componant_list:list = []) -> None:
         self.log = log
         self.Bob_folder = os.path.abspath("app/data/Bob")
         self.result_folder = os.path.abspath("app/data/Results")
@@ -25,7 +24,7 @@ class Bob_simulation():
         else:
             raise ValueError("Fail to set chemical parameters")
 
-    def set_componant_list(self, value:list[Bob_componant]):
+    def set_componant_list(self, value:list):
         if value:
             self.componant_count = len(value)
             self.componant_list = value

@@ -174,9 +174,12 @@ class BobSimuTab(QWidget):
 
     def reset_bob_param(self) -> None:
         self.log.appendLogMessage("Parameters reset.")
-        result_folder = os.path.abspath("app/data/Results")
-        file_name = "20240418_001/gtp.dat"
-        self.plot_result(os.path.join(result_folder,file_name))
+        for input in self.bob_comp_list[0].poly_model.iterate_model():
+            print(input)
+
+        # result_folder = os.path.abspath("app/data/Results")
+        # file_name = "20240418_001/gtp.dat"
+        # self.plot_result(os.path.join(result_folder,file_name))
 
     def start_bob_simu(self) -> None:
         try:
