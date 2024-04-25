@@ -39,33 +39,35 @@ class Bob_simulation():
             else:
                 # Get the first iterator in the list
                 current_iterator = iterators_list[0]
-                
                 # Recursively iterate over the remaining iterators
                 for nested_result in nested_iteration(iterators_list[1:]):
-                    print(nested_result)
                     # Iterate over the elements of the current iterator
                     for item in current_iterator:
-                        print(item)
                         # Yield the combination of the current element and the nested result
                         yield (item,) + nested_result
 
-        self.log.appendLogMessage("Simulation Start...")
-        iterators = [item.poly_model.iterate_model() for item in self.componant_list]
+        self.log.appendLogMessage("Simulations Start...")
+        iterators = [list(item.poly_model.iterate_model()) for item in self.componant_list]
+        simu_num = 1
+        for item in iterators:
+            simu_num *= len(item)
         try:
+            i = 1
             for models_params in nested_iteration(iterators):
-                pass# self.log.appendLogMessage("Input File generation...")
-                # print(models_params)
-                # self.generate_input_file()
-                # QApplication.processEvents()
-                # self.log.appendLogMessage("Launch of bob2P5.exe...")
-                # self.launch_application()
-                # QApplication.processEvents()
-                # self.log.appendLogMessage("Treatment of the results...")
-                # self.files_post_treatment()
-                # QApplication.processEvents()
-                # self.log.appendLogMessage("Simulation finished.")
+                self.log.appendLogMessage(f"Simulation {i}/{simu_num}")
+                start_time = datetime.now()
+                self.generate_input_file(models_params)
+                QApplication.processEvents()
+                self.launch_application()
+                QApplication.processEvents()
+                self.files_post_treatment()
+                end_time = datetime.now()
+                self.log.appendLogMessage(f"Simulation {i} done in {end_time-start_time}s.")
+                QApplication.processEvents()
+                i += 1
         except Exception:
             raise
+        self.log.appendLogMessage("Simulations finished.")
 
     def launch_application(self) -> None:
         try:
@@ -75,7 +77,7 @@ class Bob_simulation():
         except Exception:
             raise
     
-    def generate_input_file(self) -> None:
+    def generate_input_file(self, models_params) -> None:
         output_file = os.path.join("app/data/Bob","inputBob.dat")
         try:
             with open(output_file, "w") as file:
@@ -86,9 +88,9 @@ class Bob_simulation():
                 file.write(f"{self.chemical_params['tau']} {self.chemical_params['T']}\n")
                 file.write(f"{str(self.componant_count)}\n")
                 for i in range(0,self.componant_count):
-                    bob_comp_params = self.componant_list[i].get_comp_param()
-                    file.write(bob_comp_params['f']+"\n")
-                    file.write(bob_comp_params['params'])
+                    fraction = self.componant_list[i].fraction.text()
+                    file.write(fraction+"\n")
+                    file.write(models_params[i])
         except Exception:
             raise
 

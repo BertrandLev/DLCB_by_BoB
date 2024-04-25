@@ -36,7 +36,7 @@ import os
 
 # Test deplacement de fichier
 
-
+import sys
 def nested_iteration(iterators_list):
     # Base case: if there are no more iterators, yield an empty tuple
     if not iterators_list:
@@ -53,8 +53,7 @@ def nested_iteration(iterators_list):
                 yield (item,) + nested_result
 
 # Suppose you have a list of iterators
-iterators = [iter(range(3)), iter(range(3, 6)), iter(range(6, 9))]
-
+iterators = [iter(range(3)), iter(range(3, 6))]
 # Use recursion to perform nested iteration
 for result in nested_iteration(iterators):
     print(result)

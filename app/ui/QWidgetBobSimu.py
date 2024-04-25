@@ -85,11 +85,6 @@ class Bob_componant(QGroupBox):
             self.poly_model = mPE_bm_var_model()
         self.param_table.setModel(self.poly_model)
 
-    def get_comp_param(self) -> dict:
-        parameters = self.poly_model.get_params()
-        parameters['f'] = self.fraction.text()
-        return parameters
-
 
 class BobSimuTab(QWidget):
 
