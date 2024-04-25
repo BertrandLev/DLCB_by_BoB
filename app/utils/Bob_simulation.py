@@ -53,16 +53,17 @@ class Bob_simulation():
             simu_num *= len(item)
         try:
             i = 1
+            start_time = datetime.now()
             for models_params in nested_iteration(iterators):
                 self.log.appendLogMessage(f"Simulation {i}/{simu_num}")
-                start_time = datetime.now()
                 self.generate_input_file(models_params)
                 QApplication.processEvents()
                 self.launch_application()
                 QApplication.processEvents()
                 self.files_post_treatment()
                 end_time = datetime.now()
-                self.log.appendLogMessage(f"Simulation {i} done in {end_time-start_time}s.")
+                remaining_time = (end_time-start_time)/i*(simu_num-i)
+                self.log.appendLogMessage(f"Simulation {i} done. Time remaining {remaining_time}.")
                 QApplication.processEvents()
                 i += 1
         except Exception:
