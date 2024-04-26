@@ -6,7 +6,7 @@ import pyqtgraph as pg
 import numpy as np
 import pandas as pd
 import os
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QLocale
 from PyQt6.QtGui import QDoubleValidator
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QGroupBox, QSpinBox,
@@ -17,17 +17,24 @@ class Bob_chem_param(QGroupBox):
     def __init__(self) -> None:
         super().__init__("Chemical Parameters")
         layout = QGridLayout(self)
+        locale = QLocale(QLocale.Language.English, QLocale.Country.UnitedStates)
+        double_validator = QDoubleValidator()
+        double_validator.setDecimals(4)
+        double_validator.setLocale(locale)
         self.M0_entry = QLineEdit()
         self.M0_entry.setText("28.0")
+        self.M0_entry.setValidator(double_validator)
         layout.addWidget(QLabel("Mo ="),0,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.M0_entry,0,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("g/mol"),0,2,Qt.AlignmentFlag.AlignLeft)
         self.Ne_entry = QLineEdit()
         self.Ne_entry.setText("40")
+        self.Ne_entry.setValidator(QDoubleValidator())
         layout.addWidget(QLabel("Ne ="),1,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.Ne_entry,1,1,Qt.AlignmentFlag.AlignCenter)
         self.rho_entry = QLineEdit()
         self.rho_entry.setText("0.760")
+        self.rho_entry.setValidator(double_validator)
         layout.addWidget(QLabel("\u03c1 ="),2,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.rho_entry,2,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("g/cc"),2,2,Qt.AlignmentFlag.AlignLeft)
@@ -38,6 +45,7 @@ class Bob_chem_param(QGroupBox):
         layout.addWidget(QLabel("s"),3,2,Qt.AlignmentFlag.AlignLeft)
         self.temp_entry = QLineEdit()
         self.temp_entry.setText("463.15")
+        self.temp_entry.setValidator(double_validator)
         layout.addWidget(QLabel("T ="),4,0,Qt.AlignmentFlag.AlignRight)
         layout.addWidget(self.temp_entry,4,1,Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(QLabel("°K"),4,2,Qt.AlignmentFlag.AlignLeft)
