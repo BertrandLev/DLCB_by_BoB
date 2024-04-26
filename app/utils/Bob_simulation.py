@@ -48,6 +48,7 @@ class Bob_simulation():
 
         self.log.appendLogMessage("Simulations Start...")
         iterators = [list(item.poly_model.iterate_model()) for item in self.componant_list]
+        print(iterators)
         simu_num = 1
         for item in iterators:
             simu_num *= len(item)
@@ -89,9 +90,8 @@ class Bob_simulation():
                 file.write(f"{self.chemical_params['tau']} {self.chemical_params['T']}\n")
                 file.write(f"{str(self.componant_count)}\n")
                 for i in range(0,self.componant_count):
-                    fraction = self.componant_list[i].fraction.text()
-                    file.write(fraction+"\n")
                     file.write(models_params[i])
+                    file.write("\n")
         except Exception:
             raise
 

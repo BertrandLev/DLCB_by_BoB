@@ -4,11 +4,12 @@ from PyQt6.QtCore import QObject, Qt, QAbstractTableModel, QModelIndex, QVariant
 
 class Poly_model(QAbstractTableModel):
 
-    def __init__(self, model: str = None) -> None:
+    def __init__(self, model: str = None, fraction: float = 1) -> None:
         super().__init__()
         self.model_type = model
         self.titles = ()
-        self.parameters = {}
+        self.fraction = fraction
+        self.parameters = []
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 1
@@ -38,8 +39,8 @@ class Poly_model(QAbstractTableModel):
 
 class mPE_model(Poly_model):
 
-    def __init__(self) -> None:
-        super().__init__("mPE")
+    def __init__(self, fraction:float=1) -> None:
+        super().__init__(model="mPE", fraction=fraction)
         self.titles = ('num_gen','type','Mw','bm')
         self.parameters = [2000, 20, 20000, 0.2]
     
@@ -79,13 +80,13 @@ class mPE_model(Poly_model):
         return False
     
     def iterate_model(self):
-        input_str = f"{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {self.parameters[3]}"
+        input_str = f"{self.fraction}\n{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {self.parameters[3]}"
         yield input_str
     
 class mPE_bm_var_model(Poly_model):
 
-    def __init__(self) -> None:
-        super().__init__("mPE")
+    def __init__(self, fraction:float=1) -> None:
+        super().__init__(model="mPE", fraction=fraction)
         self.titles = ('num_gen','type','Mw','bm_min','bm_max','bm_iteration')
         self.parameters = [2000, 20, 20000, 0.0, 0.2, 20]
            
@@ -129,5 +130,5 @@ class mPE_bm_var_model(Poly_model):
                                 stop=self.parameters[4],
                                 num=self.parameters[5])
         for bm in bm_values:
-            input_str = f"{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {bm}"
+            input_str = f"{self.fraction}\n{self.parameters[0]} {self.parameters[1]}\n{self.parameters[2]} {bm}"
             yield input_str

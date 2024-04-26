@@ -1,12 +1,13 @@
 from utils.Log_box import Log_box
 from utils.Plot_box import Plot_box
 from utils.Bob_simulation import Bob_simulation
-from models.polymer_model import mPE_model, mPE_bm_var_model
+from models.polymer_model import Poly_model, mPE_model, mPE_bm_var_model
 import pyqtgraph as pg
 import numpy as np
 import pandas as pd
 import os
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QDoubleValidator
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton,QLabel, 
                              QLineEdit, QSplitter, QTableView, QGroupBox, QSpinBox,
                              QComboBox, QScrollArea)
@@ -62,9 +63,13 @@ class Bob_componant(QGroupBox):
         super().__init__(title=f"Componant #{comp_index+1}")
         self.index = comp_index
         self.log = log
+        self.poly_model = Poly_model()
         layout = QGridLayout(self)
         self.fraction = QLineEdit()
         self.fraction.setFixedWidth(80)
+        self.fraction.setValidator(QDoubleValidator().setDecimals(4))
+        self.fraction.editingFinished.connect(self.on_fraction_change)
+        self.fraction.setText("1.0")
         layout.addWidget(QLabel("Weight fraction :"), 0, 0)
         layout.addWidget(self.fraction, 0, 1, Qt.AlignmentFlag.AlignLeft)
         self.type = QComboBox()
@@ -79,7 +84,10 @@ class Bob_componant(QGroupBox):
         self.poly_model = mPE_model()
         self.param_table.setModel(self.poly_model)
         layout.setColumnStretch(2,1)
-        
+
+    def on_fraction_change(self) -> None:
+        self.poly_model.fraction = self.fraction.text()
+
     def on_type_change(self,index) -> None:
         self.log.appendLogMessage(f"Componant #{self.index} type change to {self.type.itemText(index)}")
         if self.type.itemText(index) == "mPE":
