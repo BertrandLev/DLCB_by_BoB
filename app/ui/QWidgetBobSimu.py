@@ -1,5 +1,4 @@
 from utils.Log_box import Log_box
-from utils.Plot_box import Plot_box
 from utils.Bob_simulation import Bob_simulation
 from models.polymer_model import Poly_model, mPE_model, mPE_bm_var_model
 import pyqtgraph as pg
@@ -103,7 +102,6 @@ class Bob_componant(QGroupBox):
         elif self.type.itemText(index) == 'mPE_bm_variable':
             self.poly_model = mPE_bm_var_model()
         self.param_table.setModel(self.poly_model)
-
 
 class BobSimuTab(QWidget):
 
